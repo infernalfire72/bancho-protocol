@@ -83,4 +83,4 @@ pub use target_silenced::TargetSilenced;
 pub use user_logout::UserLogout;
 pub use user_presence::{UserPresence, UserPresenceSingle, UserPresenceBundle};
 pub use user_silenced::UserSilenced;
-pub use user_stats::UserStats;
+pub use user_stats::{UserStats, UserStatsRef};

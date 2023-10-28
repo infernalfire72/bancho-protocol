@@ -21,3 +21,8 @@ pub struct UserStats<'a> {
     pub global_rank: i32,
     pub performance: i16,
 }
+
+#[derive(Debug, BinarySerialize, ByteSized, Message)]
+#[crate_root(crate)]
+#[message(MessageType::UserStats)]
+pub struct UserStatsRef<'a>(pub &'a UserStats<'a>);

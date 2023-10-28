@@ -21,7 +21,18 @@ impl Debug for v32 {
 
 impl ByteSized for v32 {
     fn byte_size(&self) -> usize {
-        (f64::floor(f64::log2(self.0 as _) / 7.0) + 1.0) as _
+        // (f64::floor(f64::log2(self.0 as _) / 7.0) + 1.0) as _
+        if (self.0 & 0xf0000000) != 0 {
+            5
+        } else if (self.0 & 0xfe00000) != 0 {
+            4
+        } else if (self.0 & 0x1fc000) != 0 {
+            3
+        } else if (self.0 & 0x3f80) != 0 {
+            2
+        } else {
+            1
+        }
     }
 }
 
