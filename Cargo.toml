@@ -1,0 +1,10 @@
+[package]
+name = "bancho-protocol"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bancho-protocol-macros = { path = "./macros" }
+tuple_list = "0.1.3"
