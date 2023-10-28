@@ -4,7 +4,6 @@ use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 
 #[derive(Debug)]
-#[repr(C, align(1))]
 pub struct MessageHeader {
     pub message_type: MessageType,
     _compress: bool,
