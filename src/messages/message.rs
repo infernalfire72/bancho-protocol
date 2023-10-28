@@ -12,7 +12,7 @@ pub struct MessageHeader {
 }
 
 impl<'a> BinaryDeserialize<'a> for MessageHeader {
-    fn read_from(mut reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
         unsafe {
             let ptr = reader.next_range(7)?.as_ptr();
             let message_type = std::ptr::read_unaligned(ptr as *const MessageType);

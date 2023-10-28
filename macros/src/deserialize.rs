@@ -3,7 +3,6 @@ use crate::tools::FieldInfo;
 use proc_macro2::{Ident, TokenStream as TokenStream2};
 use quote::{quote, quote_spanned, ToTokens};
 use syn::{DataStruct, DeriveInput, Generics};
-use syn::parse::Parse;
 
 pub fn binde_struct_impl(crate_root: TokenStream2, ident: &Ident, input: &DeriveInput, data: &DataStruct) -> TokenStream2 {
     let fields: Vec<FieldInfo> = FieldInfo::from(&data.fields);
