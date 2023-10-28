@@ -1,11 +1,21 @@
 use crate::tools::FieldInfo;
 
 use proc_macro2::{Ident, TokenStream as TokenStream2};
-use quote::{quote, quote_spanned};
-use syn::{DataStruct, DeriveInput};
+use quote::{quote, quote_spanned, ToTokens};
+use syn::{DataStruct, DeriveInput, Generics};
+use syn::parse::Parse;
 
-pub fn binde_struct_impl(crate_root: TokenStream2, ident: &Ident, input: &DataStruct) -> TokenStream2 {
-    let fields: Vec<FieldInfo> = FieldInfo::from(&input.fields);
+pub fn binde_struct_impl(crate_root: TokenStream2, ident: &Ident, input: &DeriveInput, data: &DataStruct) -> TokenStream2 {
+    let fields: Vec<FieldInfo> = FieldInfo::from(&data.fields);
+    let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
+
+    let reparsed_generics: Generics = syn::parse(impl_generics.to_token_stream().into()).unwrap();
+    let default_lifetime = reparsed_generics.lifetimes().next();
+    let (trait_lifetime, real_generics) = match default_lifetime {
+        Some(lf) => (lf.lifetime.to_token_stream(), reparsed_generics.to_token_stream()),
+        None => ("'a".parse().unwrap(), "<'a>".parse().unwrap()),
+    };
+
     let field_idents = fields.iter().map(|f| &f.ident);
     let field_impls = fields.iter().map(|f| {
         let ident = &f.ident;
@@ -22,11 +32,9 @@ pub fn binde_struct_impl(crate_root: TokenStream2, ident: &Ident, input: &DataSt
         }
     });
 
-
-
     quote!{
-        impl #crate_root::serde::deserialize::BinaryDeserialize for #ident {
-            fn read_from(reader: &mut #crate_root::serde::ByteStream) -> std::io::Result<Self> where Self: Sized {
+        impl #real_generics #crate_root::serde::deserialize::BinaryDeserialize<#trait_lifetime> for #ident #ty_generics #where_clause {
+            fn read_from(reader: &mut #crate_root::serde::deserialize::BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
                 #(#field_impls)*
                 Ok(Self {
                   #(#field_idents),*
@@ -44,8 +52,8 @@ pub fn binde_enum_impl(crate_root: TokenStream2, ident: &Ident, input: &DeriveIn
     let repr = repr.unwrap().parse_args::<TokenStream2>().unwrap();
 
     quote! {
-        impl #crate_root::serde::deserialize::BinaryDeserialize for #ident {
-            fn read_from(reader: &mut #crate_root::serde::ByteStream) -> std::io::Result<Self> where Self: Sized {
+        impl<'a> #crate_root::serde::deserialize::BinaryDeserialize<'a> for #ident {
+            fn read_from(reader: &mut #crate_root::serde::deserialize::BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
                 Ok(unsafe { std::mem::transmute(<#repr>::read_from(reader)?) })
             }
         }

@@ -1,23 +1,26 @@
 use crate::serde::byte_sized::ByteSized;
-use crate::serde::ByteStream;
 use super::MessageType;
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
-use crate::serde::deserialize::BinaryDeserialize;
+use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 
 #[derive(Debug)]
+#[repr(C, align(1))]
 pub struct MessageHeader {
     pub message_type: MessageType,
     _compress: bool,
     pub args_len: u32,
 }
 
-impl BinaryDeserialize for MessageHeader {
-    fn read_from(mut reader: &mut ByteStream) -> std::io::Result<Self> where Self: Sized {
-        let message_type = BinaryDeserialize::read_from(&mut reader)?;
-        let _compress = BinaryDeserialize::read_from(&mut reader)?;
-        let args_len = BinaryDeserialize::read_from(&mut reader)?;
+impl<'a> BinaryDeserialize<'a> for MessageHeader {
+    fn read_from(mut reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
+        unsafe {
+            let ptr = reader.next_range(7)?.as_ptr();
+            let message_type = std::ptr::read_unaligned(ptr as *const MessageType);
+            let _compress = std::ptr::read_unaligned(ptr.offset(2) as *const bool);
+            let args_len = std::ptr::read_unaligned(ptr.offset(3) as *const u32);
 
-        Ok(Self {message_type, _compress, args_len})
+            Ok(Self { message_type, _compress, args_len })
+        }
     }
 }
 

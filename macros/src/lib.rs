@@ -33,7 +33,7 @@ pub fn binary_deserialize(input: TokenStream) -> TokenStream {
     let crate_root = tools::get_crate_root(&input.attrs);
 
     TokenStream::from(match input.data {
-        Data::Struct(ref struct_data) => deserialize::binde_struct_impl(crate_root, ident, struct_data),
+        Data::Struct(ref struct_data) => deserialize::binde_struct_impl(crate_root, ident, &input, struct_data),
         Data::Enum(ref _enum_data) => deserialize::binde_enum_impl(crate_root, ident, &input),
         _ => unimplemented!()
     })

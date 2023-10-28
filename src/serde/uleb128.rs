@@ -1,7 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use crate::serde::byte_sized::ByteSized;
-use crate::serde::ByteStream;
-use crate::serde::deserialize::BinaryDeserialize;
+use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 
 #[repr(transparent)]
@@ -43,8 +42,8 @@ impl BinarySerialize for v32 {
     }
 }
 
-impl BinaryDeserialize for v32 {
-    fn read_from(reader: &mut ByteStream) -> std::io::Result<Self> {
+impl<'a> BinaryDeserialize<'a> for v32 {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> {
         let mut r = 0;
         let mut s = 0;
         loop {

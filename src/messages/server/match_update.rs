@@ -7,4 +7,4 @@ use crate::serde::macros::{BinarySerialize, ByteSized, Message};
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
 #[message(MessageType::MatchUpdate)]
-pub struct MatchUpdate<'a>(pub &'a Match);
+pub struct MatchUpdate<'a>(pub &'a Match<'a>);

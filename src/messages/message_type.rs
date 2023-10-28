@@ -1,6 +1,5 @@
 use core::marker::ConstParamTy;
-use crate::serde::ByteStream;
-use crate::serde::deserialize::BinaryDeserialize;
+use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 
 #[repr(u16)]
 #[derive(ConstParamTy, Debug, Eq, PartialEq)]
@@ -105,8 +104,8 @@ pub enum MessageType {
     SwitchServer = 107,
 }
 
-impl BinaryDeserialize for MessageType {
-    fn read_from(reader: &mut ByteStream) -> std::io::Result<Self> where Self: Sized {
+impl<'a> BinaryDeserialize<'a> for MessageType {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
         Ok(unsafe {std::mem::transmute(u16::read_from(reader)?)})
     }
 }

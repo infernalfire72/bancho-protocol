@@ -1,8 +1,7 @@
 use core::marker::PhantomData;
 use std::fmt::Debug;
 use crate::serde::byte_sized::ByteSized;
-use crate::serde::ByteStream;
-use crate::serde::deserialize::BinaryDeserialize;
+use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 
 
@@ -44,11 +43,11 @@ impl<P: BinarySerialize + TryFrom<usize> + Default + Debug, T: BinarySerialize> 
 
 
 // Deserialize
-impl<P: BinaryDeserialize + TryInto<usize> + TryFrom<usize> + Default + Debug, T: BinaryDeserialize> BinaryDeserialize for PrefixedVec<P, T>
+impl<'a, P: BinaryDeserialize<'a> + TryInto<usize> + TryFrom<usize> + Default + Debug, T: BinaryDeserialize<'a>> BinaryDeserialize<'a> for PrefixedVec<P, T>
     where
         <P as TryInto<usize>>::Error: Debug
 {
-    fn read_from(reader: &mut ByteStream) -> std::io::Result<Self>
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self>
         where
             Self: Sized
     {

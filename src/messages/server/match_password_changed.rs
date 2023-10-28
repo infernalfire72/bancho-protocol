@@ -7,4 +7,4 @@ use crate::serde::macros::{BinarySerialize, ByteSized, Message};
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
 #[message(MessageType::MatchPasswordChanged)]
-pub struct MatchPasswordChanged<'a>(pub &'a Match);
+pub struct MatchPasswordChanged<'a>(pub &'a Match<'a>);

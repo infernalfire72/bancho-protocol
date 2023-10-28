@@ -5,17 +5,17 @@ use crate::structures::MatchSlot;
 // TODO: proper generics and lifetimes in deserzialize
 #[derive(Debug, BinaryDeserialize, BinarySerialize, ByteSized, Clone)]
 #[crate_root(crate)]
-pub struct Match {
+pub struct Match<'a> {
     pub id: i16,
     pub in_progress: bool,
     pub powerplay: bool,
     pub mods: Mod,
 
-    pub name: String,
-    pub password: String,
-    pub beatmap_name: String,
+    pub name: &'a str,
+    pub password: &'a str,
+    pub beatmap_name: &'a str,
     pub beatmap_id: i32,
-    pub beatmap_md5: String,
+    pub beatmap_md5: &'a str,
     pub slots: [MatchSlot; 16],
 
     pub host: i32,

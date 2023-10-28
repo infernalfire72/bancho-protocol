@@ -2,9 +2,9 @@ use crate::serde::macros::{BinarySerialize, BinaryDeserialize, ByteSized};
 
 #[derive(Debug, Clone, BinarySerialize, BinaryDeserialize, ByteSized)]
 #[crate_root(crate)]
-pub struct IrcMessage {
-    pub sender: String,
-    pub text: String,
-    pub recipient: String,
+pub struct IrcMessage<'a> {
+    pub sender: &'a str,
+    pub text: &'a str,
+    pub recipient: &'a str,
     pub sender_id: i32,
 }

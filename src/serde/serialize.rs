@@ -56,8 +56,9 @@ macro_rules! impl_serialize {
         impl BinarySerialize for $t {
             fn write_to(&self, writer: &mut BinaryWriter) {
                 unsafe { std::ptr::write_unaligned(
-                    writer.underlying.as_mut_ptr().offset(writer.position as _) as *mut $t,
-                    *self) };
+                    writer.underlying.as_mut_ptr().add(writer.position) as *mut $t,
+                    *self
+                ) };
                 writer.position += std::mem::size_of::<$t>()
             }
         }

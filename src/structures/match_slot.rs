@@ -1,7 +1,6 @@
 use crate::serde::byte_sized::ByteSized;
-use crate::serde::ByteStream;
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
-use crate::serde::deserialize::BinaryDeserialize;
+use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 use crate::structures::{MatchTeam, SlotStatus};
 
 #[derive(Debug, Copy, Clone)]
@@ -56,8 +55,8 @@ impl<const N: usize> BinarySerialize for [MatchSlot; N] {
     }
 }
 
-impl<const N: usize> BinaryDeserialize for [MatchSlot; N] {
-    fn read_from(reader: &mut ByteStream) -> std::io::Result<Self> where Self: Sized {
+impl<'a, const N: usize> BinaryDeserialize<'a> for [MatchSlot; N] {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
         let mut slots = [MatchSlot::default(); N];
         for i in 0..N {
             slots[i].status = SlotStatus::read_from(reader)?;
