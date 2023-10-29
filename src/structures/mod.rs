@@ -12,7 +12,7 @@ mod score_frame;
 mod slot_status;
 mod win_conditions;
 
-pub use actions::Action;
+pub use actions::{Action, UserAction};
 pub use countries::Country;
 pub use irc_message::IrcMessage;
 pub use r#match::Match;

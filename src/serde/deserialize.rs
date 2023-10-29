@@ -1,8 +1,8 @@
 use crate::serde::uleb128::v32;
 
 pub struct BinaryReader<'a> {
-    pub(crate) stream: &'a [u8],
-    pub(crate) position: usize,
+    stream: &'a [u8],
+    position: usize,
 }
 
 impl<'a> BinaryReader<'a> {
@@ -16,6 +16,8 @@ impl<'a> BinaryReader<'a> {
     pub fn reset(&mut self) {
         self.position = 0;
     }
+
+    pub fn skip(&mut self, count: usize) { self.position += count; }
 
     pub fn can_read(&self) -> bool {
         self.stream.len() > self.position

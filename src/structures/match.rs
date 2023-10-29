@@ -2,7 +2,6 @@ use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 use crate::structures::{Mod, Mode, MatchTeamType, WinCondition};
 use crate::structures::MatchSlot;
 
-// TODO: proper generics and lifetimes in deserzialize
 #[derive(Debug, BinaryDeserialize, BinarySerialize, ByteSized, Clone)]
 #[crate_root(crate)]
 pub struct Match<'a> {
