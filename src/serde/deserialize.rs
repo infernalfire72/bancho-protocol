@@ -17,6 +17,8 @@ impl<'a> BinaryReader<'a> {
         self.position = 0;
     }
 
+    pub fn pos(&self) -> usize {   self.position }
+
     pub fn skip(&mut self, count: usize) { self.position += count; }
 
     pub fn can_read(&self) -> bool {

@@ -3,6 +3,9 @@ use super::MessageType;
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 
+
+pub const HEADER_SIZE: usize = 7;
+
 #[derive(Debug)]
 pub struct MessageHeader {
     pub message_type: MessageType,
@@ -13,7 +16,7 @@ pub struct MessageHeader {
 impl<'a> BinaryDeserialize<'a> for MessageHeader {
     fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
         unsafe {
-            let ptr = reader.next_range(7)?.as_ptr();
+            let ptr = reader.next_range(HEADER_SIZE)?.as_ptr();
             let message_type = std::ptr::read_unaligned(ptr as *const MessageType);
             let _compress = std::ptr::read_unaligned(ptr.offset(2) as *const bool);
             let args_len = std::ptr::read_unaligned(ptr.offset(3) as *const u32);
@@ -39,7 +42,7 @@ impl<const M: MessageType, T: BinarySerialize> Message<M, T> {
 
 impl<const M: MessageType, T: BinarySerialize> ByteSized for Message<M, T> {
     fn byte_size(&self) -> usize {
-        7 + self.0.byte_size()
+        HEADER_SIZE + self.0.byte_size()
     }
 }
 
