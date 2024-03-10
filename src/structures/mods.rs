@@ -1,9 +1,11 @@
 use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
+use std::ops::{BitAnd, BitOr, BitXor};
 
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, BinarySerialize, BinaryDeserialize, ByteSized)]
+#[derive(Debug, Default, Copy, Clone, BinarySerialize, BinaryDeserialize, ByteSized)]
 #[crate_root(crate)]
 pub enum Mod {
+    #[default]
     None,
     NoFail = 1 << 0,
     Easy = 1 << 1,
@@ -36,4 +38,25 @@ pub enum Mod {
     Keys2 = 1 << 28,
     ScoreV2 = 1 << 29,
     Mirror = 1 << 30,
+}
+
+impl BitAnd for Mod {
+    type Output = Self;
+    fn bitand(self, rhs: Self) -> Self::Output {
+        unsafe { std::mem::transmute((self as u32) & (rhs as u32)) }
+    }
+}
+
+impl BitOr for Mod {
+    type Output = Self;
+    fn bitor(self, rhs: Self) -> Self::Output {
+        unsafe { std::mem::transmute((self as u32) | (rhs as u32)) }
+    }
+}
+
+impl BitXor for Mod {
+    type Output = Self;
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        unsafe { std::mem::transmute((self as u32) ^ (rhs as u32)) }
+    }
 }
