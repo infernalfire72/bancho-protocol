@@ -1,8 +1,7 @@
-use core::marker::ConstParamTy;
 use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 
 #[repr(u16)]
-#[derive(ConstParamTy, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum MessageType {
     // Client
     ChangeAction = 0,
@@ -102,8 +101,119 @@ pub enum MessageType {
     SwitchServer = 107,
 }
 
+impl TryFrom<u16> for MessageType {
+    type Error = std::io::Error;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        use std::io::ErrorKind;
+
+        Ok(match value {
+            // Client
+            0 => MessageType::ChangeAction,
+            1 => MessageType::PublicChatMessage,
+            2 => MessageType::Logout,
+            3 => MessageType::UpdateStatsRequest,
+            4 => MessageType::Ping,
+            16 => MessageType::StartSpectating,
+            17 => MessageType::StopSpectating,
+            18 => MessageType::SpectateFrames,
+            21 => MessageType::CantSpectate,
+            25 => MessageType::PrivateChatMessage,
+            29 => MessageType::LeaveLobby,
+            30 => MessageType::JoinLobby,
+            31 => MessageType::CreateMatch,
+            32 => MessageType::JoinMatch,
+            33 => MessageType::LeaveMatch,
+            38 => MessageType::MatchChangeSlot,
+            39 => MessageType::MatchReady,
+            40 => MessageType::MatchLock,
+            41 => MessageType::MatchChangeSettings,
+            44 => MessageType::StartMatch,
+            47 => MessageType::UpdateMatchScore,
+            49 => MessageType::MatchPlayerComplete,
+            51 => MessageType::MatchChangeMods,
+            52 => MessageType::MatchLoadComplete,
+            54 => MessageType::MatchNoBeatmap,
+            55 => MessageType::MatchNotReady,
+            56 => MessageType::MatchFailed,
+            59 => MessageType::MatchHasBeatmap,
+            60 => MessageType::MatchSkipRequest,
+            63 => MessageType::JoinChannel,
+            70 => MessageType::MatchChangeHost,
+            73 => MessageType::AddFriend,
+            74 => MessageType::RemoveFriend,
+            77 => MessageType::MatchChangeTeam,
+            78 => MessageType::LeaveChannel,
+            79 => MessageType::ReceiveUpdates,
+            82 => MessageType::SetAwayMessage,
+            85 => MessageType::UserStatsRequest,
+            87 => MessageType::MatchInvite,
+            90 => MessageType::MatchChangePassword,
+            93 => MessageType::TournamentMatchInfoRequest,
+            97 => MessageType::RequestPresences,
+            98 => MessageType::RequestAllPresences,
+            99 => MessageType::ToggleBlockNonFriendDms,
+            108 => MessageType::TournamentJoinMatchChannel,
+            109 => MessageType::TournamentLeaveMatchChannel,
+
+            // Server
+            5 => MessageType::LoginSuccessful,
+            7 => MessageType::ChatMessage,
+            8 => MessageType::Pong,
+            11 => MessageType::UserStats,
+            12 => MessageType::UserLogout,
+            13 => MessageType::SpectatorJoined,
+            14 => MessageType::SpectatorLeft,
+            15 => MessageType::SpectatorFrames,
+            22 => MessageType::FailedSpectating,
+            23 => MessageType::GetAttention,
+            24 => MessageType::Alert,
+            26 => MessageType::MatchUpdate,
+            27 => MessageType::MatchCreated,
+            28 => MessageType::MatchDisposed,
+            36 => MessageType::MatchJoinSuccess,
+            37 => MessageType::MatchJoinFailed,
+            42 => MessageType::FellowSpectatorJoined,
+            43 => MessageType::FellowSpectatorLeft,
+            46 => MessageType::MatchStart,
+            48 => MessageType::MatchScoreUpdate,
+            50 => MessageType::MatchTransferHost,
+            53 => MessageType::MatchAllPlayersLoaded,
+            57 => MessageType::MatchPlayerFailed,
+            58 => MessageType::MatchComplete,
+            61 => MessageType::MatchSkip,
+            64 => MessageType::ChannelJoinSuccess,
+            65 => MessageType::ChannelInfo,
+            66 => MessageType::ChannelKick,
+            67 => MessageType::ChannelAutoJoin,
+            71 => MessageType::Privileges,
+            72 => MessageType::FriendsList,
+            75 => MessageType::ProtocolVersion,
+            76 => MessageType::MainMenuIcon,
+            81 => MessageType::MatchPlayerSkipped,
+            83 => MessageType::UserPresence,
+            86 => MessageType::Restart,
+            89 => MessageType::ChannelInfoEnd,
+            91 => MessageType::MatchPasswordChanged,
+            92 => MessageType::SilenceEnd,
+            94 => MessageType::UserSilenced,
+            95 => MessageType::UserPresenceSingle,
+            96 => MessageType::UserPresenceBundle,
+            100 => MessageType::UserDmBlocked,
+            101 => MessageType::TargetSilenced,
+            104 => MessageType::Restricted,
+            106 => MessageType::MatchAborted,
+            107 => MessageType::SwitchServer,
+            _ => Err(Self::Error::new(
+                ErrorKind::InvalidData,
+                "invalid packet id",
+            ))?,
+        })
+    }
+}
+
 impl<'a> BinaryDeserialize<'a> for MessageType {
-    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
-        Ok(unsafe {std::mem::transmute(u16::read_from(reader)?)})
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> {
+        Ok(MessageType::try_from(u16::read_from(reader)?)?)
     }
 }

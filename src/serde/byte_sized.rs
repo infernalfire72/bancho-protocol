@@ -1,5 +1,4 @@
 use crate::serde::uleb128::v32;
-use tuple_list::TupleList;
 
 pub trait ByteSized {
     fn byte_size(&self) -> usize;
@@ -40,17 +39,5 @@ impl ByteSized for str {
 impl ByteSized for String {
     fn byte_size(&self) -> usize {
         str::byte_size(self)
-    }
-}
-
-impl ByteSized for () {
-    fn byte_size(&self) -> usize {
-        0
-    }
-}
-
-impl<Head: ByteSized, Tail: ByteSized + TupleList> ByteSized for (Head, Tail) {
-    fn byte_size(&self) -> usize {
-        self.0.byte_size() + self.1.byte_size()
     }
 }

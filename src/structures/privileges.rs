@@ -1,36 +1,28 @@
-use std::ops::{BitAnd, BitOr, BitXor};
-use crate::serde::macros::{BinarySerialize, ByteSized};
+use crate::serde::byte_sized::ByteSized;
+use crate::serde::serialize::{BinarySerialize, BinaryWriter};
+use bitflags::bitflags;
 
-#[repr(u32)]
-#[derive(Debug, BinarySerialize, ByteSized)]
-#[crate_root(crate)]
-pub enum Privilege {
-    None,
-    Player = 1,
-    Moderator = 2,
-    Supporter = 4,
-    LeGuy = 8,
-    Developer = 16,
-    TournamentStaff = 32,
-}
-
-impl BitAnd for Privilege {
-    type Output = Self;
-    fn bitand(self, rhs: Self) -> Self::Output {
-        unsafe { std::mem::transmute((self as u32) & (rhs as u32)) }
+bitflags! {
+    #[derive(Debug, Copy, Clone)]
+    pub struct Privileges: u32 {
+        const NONE = 0;
+        const PLAYER = 1;
+        const MODERATOR = 2;
+        const SUPPORTER = 4;
+        const LE_GUY = 8;
+        const DEVELOPER = 16;
+        const TOURNAMENT_STAFF = 32;
     }
 }
 
-impl BitOr for Privilege {
-    type Output = Self;
-    fn bitor(self, rhs: Self) -> Self::Output {
-        unsafe { std::mem::transmute((self as u32) | (rhs as u32)) }
+impl ByteSized for Privileges {
+    fn byte_size(&self) -> usize {
+        std::mem::size_of::<u32>()
     }
 }
 
-impl BitXor for Privilege {
-    type Output = Self;
-    fn bitxor(self, rhs: Self) -> Self::Output {
-        unsafe { std::mem::transmute((self as u32) ^ (rhs as u32)) }
+impl BinarySerialize for Privileges {
+    fn write_to(&self, writer: &mut BinaryWriter) {
+        u32::write_to(&self.bits(), writer)
     }
 }

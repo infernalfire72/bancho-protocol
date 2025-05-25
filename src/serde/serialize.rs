@@ -24,11 +24,13 @@ impl BinaryWriter {
     }
 
     pub fn write_byte_slice(&mut self, v: &[u8]) {
-        unsafe { std::ptr::copy(
-            v.as_ptr(),
-            self.underlying.as_mut_ptr().offset(self.position as _),
-            v.len()
-        ) }
+        unsafe {
+            std::ptr::copy(
+                v.as_ptr(),
+                self.underlying.as_mut_ptr().offset(self.position as _),
+                v.len(),
+            )
+        }
         self.position += v.len()
     }
 
@@ -44,7 +46,10 @@ impl BinaryWriter {
 pub trait BinarySerialize: ByteSized {
     fn write_to(&self, writer: &mut BinaryWriter);
 
-    fn serialize(&self) -> Vec<u8> where Self: Sized {
+    fn serialize(&self) -> Vec<u8>
+    where
+        Self: Sized,
+    {
         let mut writer = BinaryWriter::with_length(self.byte_size());
         self.write_to(&mut writer);
         writer.data()
@@ -79,7 +84,13 @@ impl BinarySerialize for u8 {
 
 impl BinarySerialize for bool {
     fn write_to(&self, writer: &mut BinaryWriter) {
-        u8::write_to(&match self { true => 1, _ => 0 }, writer)
+        u8::write_to(
+            &match self {
+                true => 1,
+                _ => 0,
+            },
+            writer,
+        )
     }
 }
 
@@ -107,18 +118,5 @@ impl<const N: usize, T: BinarySerialize> BinarySerialize for [T; N] {
         for i in self {
             BinarySerialize::write_to(i, writer);
         }
-    }
-}
-
-use tuple_list::TupleList;
-
-impl BinarySerialize for () {
-    fn write_to(&self, _writer: &mut BinaryWriter) {}
-}
-
-impl<Head: BinarySerialize, Tail: BinarySerialize + TupleList> BinarySerialize for (Head, Tail) {
-    fn write_to(&self, writer: &mut BinaryWriter) {
-        self.0.write_to(writer);
-        self.1.write_to(writer);
     }
 }

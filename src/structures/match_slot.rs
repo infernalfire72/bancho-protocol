@@ -1,6 +1,6 @@
 use crate::serde::byte_sized::ByteSized;
-use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
+use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use crate::structures::{MatchTeam, SlotStatus};
 
 #[derive(Debug, Copy, Clone)]
@@ -12,8 +12,7 @@ pub struct MatchSlot {
 
 impl MatchSlot {
     pub fn has_user(&self) -> bool {
-        self.status != SlotStatus::Empty &&
-            self.status != SlotStatus::Locked
+        self.status != SlotStatus::Empty && self.status != SlotStatus::Locked
     }
 }
 
@@ -29,11 +28,16 @@ impl Default for MatchSlot {
 
 impl<const N: usize> ByteSized for [MatchSlot; N] {
     fn byte_size(&self) -> usize {
-        self.iter().filter_map(|slot| if slot.user_id == 0 {
-            None
-        } else {
-            Some(slot.user_id.byte_size())
-        }).sum::<usize>() + N * 2
+        self.iter()
+            .filter_map(|slot| {
+                if slot.user_id == 0 {
+                    None
+                } else {
+                    Some(slot.user_id.byte_size())
+                }
+            })
+            .sum::<usize>()
+            + N * 2
     }
 }
 
@@ -56,7 +60,10 @@ impl<const N: usize> BinarySerialize for [MatchSlot; N] {
 }
 
 impl<'a, const N: usize> BinaryDeserialize<'a> for [MatchSlot; N] {
-    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self>
+    where
+        Self: Sized,
+    {
         let mut slots = [MatchSlot::default(); N];
         for i in 0..N {
             slots[i].status = SlotStatus::read_from(reader)?;

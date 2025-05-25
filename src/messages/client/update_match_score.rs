@@ -1,6 +1,5 @@
-use crate::structures::ScoreFrame;
 use crate::serde::macros::BinaryDeserialize;
-
+use crate::structures::ScoreFrame;
 
 #[derive(Debug, BinaryDeserialize)]
 #[crate_root(crate)]

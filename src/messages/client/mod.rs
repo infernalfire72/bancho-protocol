@@ -50,7 +50,7 @@ pub use leave_channel::LeaveChannel;
 pub use leave_lobby::LeaveLobby;
 pub use leave_match::LeaveMatch;
 pub use logout::Logout;
-pub use match_actions::{MatchReady, MatchNotReady, MatchHasBeatmap, MatchNoBeatmap};
+pub use match_actions::{MatchHasBeatmap, MatchNoBeatmap, MatchNotReady, MatchReady};
 pub use match_change_host::MatchChangeHost;
 pub use match_change_mods::MatchChangeMods;
 pub use match_change_password::MatchChangePassword;
@@ -64,7 +64,7 @@ pub use match_loaded::MatchLoadComplete;
 pub use match_lock::MatchLock;
 pub use match_skip_request::MatchSkipRequest;
 pub use ping::Ping;
-pub use presences_requests::{RequestPresences, RequestAllPresences};
+pub use presences_requests::{RequestAllPresences, RequestPresences};
 pub use private_chat_message::PrivateChatMessage;
 pub use public_chat_message::PublicChatMessage;
 pub use receive_updates::ReceiveUpdates;
@@ -75,7 +75,9 @@ pub use start_match::StartMatch;
 pub use start_spectating::StartSpectating;
 pub use stop_spectating::StopSpectating;
 pub use toggle_dm_blocking::ToggleBlockNonFriendDms;
-pub use tournament::TournamentMatchInfoRequest;
+pub use tournament::{
+    TournamentJoinMatchChannel, TournamentLeaveMatchChannel, TournamentMatchInfoRequest,
+};
 pub use update_match_score::UpdateMatchScore;
 pub use update_stats_request::UpdateStatsRequest;
 pub use user_stats_request::UserStatsRequest;

@@ -1,6 +1,6 @@
-use crate::messages::{Message, MessageType};
+use crate::messages::MessageType;
 use crate::serde::osu_types::PrefixedVec;
-use crate::structures::{Country, Mode, Privilege};
+use crate::structures::{Country, Mode, Privileges};
 
 use crate::serde::macros::{BinarySerialize, ByteSized, Message};
 
@@ -15,7 +15,7 @@ pub struct UserPresence<'a> {
     privileges_gamemode: u8,
     longitude: f32,
     latitude: f32,
-    global_rank: i32
+    global_rank: i32,
 }
 
 impl<'a> UserPresence<'a> {
@@ -25,12 +25,12 @@ impl<'a> UserPresence<'a> {
         timezone: i8,
         country: Country,
         gamemode: Mode,
-        privileges: Privilege,
+        privileges: Privileges,
         longitude: f32,
         latitude: f32,
     ) -> Self {
         let timezone = (timezone + 24) as _;
-        let privileges_gamemode = ((gamemode as u8) << 5) | ((privileges as u8) & 0x1f);
+        let privileges_gamemode = ((gamemode as u8) << 5) | ((privileges.bits() as u8) & 0x1f);
         Self {
             user_id,
             username,
@@ -44,14 +44,12 @@ impl<'a> UserPresence<'a> {
     }
 }
 
-
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
 #[message(MessageType::UserPresenceSingle)]
 pub struct UserPresenceSingle {
     pub user_id: i32,
 }
-
 
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]

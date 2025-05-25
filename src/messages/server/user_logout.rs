@@ -1,6 +1,5 @@
-use crate::messages::{Message, MessageType};
+use crate::messages::MessageType;
 use crate::serde::macros::{BinarySerialize, ByteSized, Message};
-
 
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
@@ -11,6 +10,8 @@ pub struct UserLogout {
 
 impl UserLogout {
     pub fn new(user_id: i32) -> Self {
-        Self { user_id: user_id as _ }
+        Self {
+            user_id: user_id as _,
+        }
     }
 }

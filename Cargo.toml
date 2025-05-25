@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 bancho-protocol-macros = { path = "./macros" }
-tuple_list = "0.1.3"
+bitflags = "2.6.0"

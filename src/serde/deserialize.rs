@@ -6,32 +6,39 @@ pub struct BinaryReader<'a> {
 }
 
 impl<'a> BinaryReader<'a> {
-    pub fn from(stream: &'a [u8]) -> Self {
+    pub const fn from(stream: &'a [u8]) -> Self {
         Self {
             stream,
             position: 0,
         }
     }
 
-    pub fn reset(&mut self) {
+    pub const fn reset(&mut self) {
         self.position = 0;
     }
 
-    pub fn pos(&self) -> usize {   self.position }
+    pub const fn pos(&self) -> usize {
+        self.position
+    }
 
-    pub fn skip(&mut self, count: usize) { self.position += count; }
+    pub const fn skip(&mut self, count: usize) {
+        self.position += count;
+    }
 
-    pub fn can_read(&self) -> bool {
+    pub const fn can_read(&self) -> bool {
         self.stream.len() > self.position
     }
 
-    pub fn can_read_n(&self, count: usize) -> bool {
+    pub const fn can_read_n(&self, count: usize) -> bool {
         self.stream.len() > self.position + count - 1
     }
 
     pub fn next(&mut self) -> std::io::Result<u8> {
         if !self.can_read() {
-            return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "unexpected end of stream"));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "unexpected end of stream",
+            ));
         }
 
         let r = self.stream[self.position];
@@ -41,7 +48,10 @@ impl<'a> BinaryReader<'a> {
 
     pub fn next_range(&mut self, count: usize) -> std::io::Result<&'a [u8]> {
         if !self.can_read_n(count) {
-            return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "unexpected end of stream"));
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "unexpected end of stream",
+            ));
         }
         let end = self.position + count;
         let r = &self.stream[self.position..end];
@@ -49,28 +59,36 @@ impl<'a> BinaryReader<'a> {
         Ok(r)
     }
 
-    pub fn read_arbitrary<T: Sized>(&mut self) -> std::io::Result<T> {
-        if !self.can_read_n(std::mem::size_of::<T>()) {
-            return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "unexpected end of stream"));
+    pub fn next_range_const<const N: usize>(&mut self) -> std::io::Result<[u8; N]> {
+        if !self.can_read_n(N) {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::UnexpectedEof,
+                "unexpected end of stream",
+            ));
         }
 
-        let r = unsafe {
-            std::ptr::read_unaligned(self.stream.as_ptr().add(self.position) as *const T)
-        };
-        self.position += std::mem::size_of::<T>();
-        Ok(r)
+        let end = self.position + N;
+        let r = self.stream[self.position..].first_chunk().unwrap();
+        self.position = end;
+        Ok(*r)
     }
 }
 
-pub trait BinaryDeserialize<'a> {
-    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized;
+pub trait BinaryDeserialize<'a>: Sized {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self>;
+
+    fn deserialize(data: &'a [u8]) -> std::io::Result<Self> {
+        let mut reader = BinaryReader::from(data);
+        Self::read_from(&mut reader)
+    }
 }
 
 macro_rules! impl_deserialize {
     ($t:ty) => {
         impl<'a> BinaryDeserialize<'a> for $t {
             fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> {
-                reader.read_arbitrary()
+                let bytes = reader.next_range_const::<{ std::mem::size_of::<$t>() }>()?;
+                Ok(<$t>::from_le_bytes(bytes))
             }
         }
     };
@@ -98,7 +116,7 @@ impl<'a> BinaryDeserialize<'a> for &'a str {
     fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> {
         let osu_type = reader.next()?;
         if osu_type != 0x0b {
-            return Ok(Self::default())
+            return Ok(Self::default());
         }
 
         let len = v32::read_from(reader)?;
@@ -113,9 +131,11 @@ impl<'a> BinaryDeserialize<'a> for String {
     }
 }
 
-
 impl<'a, const N: usize, T: BinaryDeserialize<'a> + Copy> BinaryDeserialize<'a> for [T; N] {
-    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
+    fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self>
+    where
+        Self: Sized,
+    {
         let init = T::read_from(reader)?;
         let mut r = [init; N];
         for i in 1..N {

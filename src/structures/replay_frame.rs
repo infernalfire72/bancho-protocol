@@ -1,6 +1,6 @@
-use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 use crate::serde::osu_types::PrefixedVec;
 use crate::structures::ScoreFrame;
+use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 
 #[repr(u8)]
 #[derive(Debug, BinaryDeserialize, BinarySerialize, ByteSized)]

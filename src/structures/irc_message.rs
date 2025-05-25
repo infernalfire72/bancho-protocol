@@ -1,4 +1,4 @@
-use crate::serde::macros::{BinarySerialize, BinaryDeserialize, ByteSized};
+use crate::serde::macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 
 #[derive(Debug, Clone, BinarySerialize, BinaryDeserialize, ByteSized)]
 #[crate_root(crate)]

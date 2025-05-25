@@ -1,6 +1,5 @@
-use crate::structures::IrcMessage;
 use crate::serde::macros::BinaryDeserialize;
-
+use crate::structures::IrcMessage;
 
 // fix tuple structs for deserialize
 #[derive(Debug, BinaryDeserialize)]

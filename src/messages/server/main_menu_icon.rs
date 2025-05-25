@@ -1,6 +1,5 @@
-use crate::messages::{Message, MessageType};
+use crate::messages::MessageType;
 use crate::serde::macros::{BinarySerialize, ByteSized, Message};
-
 
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
@@ -12,7 +11,7 @@ pub struct MainMenuIcon {
 impl MainMenuIcon {
     pub fn new<'a>(icon_url: &'a str, onclick_url: &'a str) -> Self {
         Self {
-            format: format!("{}|{}", icon_url, onclick_url)
+            format: format!("{}|{}", icon_url, onclick_url),
         }
     }
 }

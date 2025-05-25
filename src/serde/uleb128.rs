@@ -1,7 +1,7 @@
-use std::fmt::{Debug, Display, Formatter};
 use crate::serde::byte_sized::ByteSized;
 use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
+use std::fmt::{Debug, Display, Formatter};
 
 #[repr(transparent)]
 #[allow(non_camel_case_types)]
@@ -42,12 +42,12 @@ impl BinarySerialize for v32 {
         loop {
             let mut b: u8 = (v & 0x7f) as _;
             v >>= 7;
-            if v != 0 {
-                b |= 0x80;
-            }
-            writer.write_byte(b);
             if v == 0 {
-                break;
+                writer.write_byte(b);
+                return;
+            } else {
+                b |= 0x80;
+                writer.write_byte(b);
             }
         }
     }

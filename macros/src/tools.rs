@@ -1,7 +1,7 @@
 use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{quote};
-use syn::{Attribute, Fields};
+use quote::quote;
 use syn::spanned::Spanned;
+use syn::{Attribute, Fields};
 
 pub fn get_crate_root(attrs: &Vec<Attribute>) -> TokenStream2 {
     match attrs.iter().find(|a| a.path().is_ident("crate_root")) {
@@ -25,23 +25,25 @@ impl FieldInfo {
             Fields::Unit => return vec![],
         };
 
-        fields.map(|f| {
-            let span = f.span();
-            let ident = match &f.ident {
-                Some(ident) => quote!{#ident},
-                None => format!("{}", i).parse().unwrap(),
-            };
+        fields
+            .map(|f| {
+                let span = f.span();
+                let ident = match &f.ident {
+                    Some(ident) => quote! {#ident},
+                    None => format!("{}", i).parse().unwrap(),
+                };
 
-            let depends_on = match f.attrs.iter().find(|attr| attr.path().is_ident("depends")) {
-                Some(attr) => Some(attr.parse_args().unwrap()),
-                None => None,
-            };
+                let depends_on = match f.attrs.iter().find(|attr| attr.path().is_ident("depends")) {
+                    Some(attr) => Some(attr.parse_args().unwrap()),
+                    None => None,
+                };
 
-            FieldInfo {
-                span,
-                ident,
-                depends_on,
-            }
-        }).collect()
+                FieldInfo {
+                    span,
+                    ident,
+                    depends_on,
+                }
+            })
+            .collect()
     }
 }

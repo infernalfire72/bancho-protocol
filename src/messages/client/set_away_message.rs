@@ -1,6 +1,5 @@
-use crate::structures::IrcMessage;
 use crate::serde::macros::BinaryDeserialize;
-
+use crate::structures::IrcMessage;
 
 #[derive(Debug, BinaryDeserialize)]
 #[crate_root(crate)]
