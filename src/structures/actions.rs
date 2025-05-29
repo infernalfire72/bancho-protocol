@@ -2,7 +2,9 @@ use crate::serde::macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 use crate::structures::{Mode, Mods};
 
 #[repr(u8)]
-#[derive(Debug, Default, Copy, Clone, BinarySerialize, BinaryDeserialize, ByteSized)]
+#[derive(
+    Debug, Default, Copy, Clone, Eq, PartialEq, BinarySerialize, BinaryDeserialize, ByteSized,
+)]
 #[crate_root(crate)]
 pub enum Action {
     #[default]

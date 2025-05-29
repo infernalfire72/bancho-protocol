@@ -52,7 +52,7 @@ pub enum MessageType {
     TournamentLeaveMatchChannel = 109,
 
     // Server
-    LoginSuccessful = 5,
+    LoginResult = 5,
     ChatMessage = 7,
     Pong = 8,
     UserStats = 11,
@@ -157,7 +157,7 @@ impl TryFrom<u16> for MessageType {
             109 => MessageType::TournamentLeaveMatchChannel,
 
             // Server
-            5 => MessageType::LoginSuccessful,
+            5 => MessageType::LoginResult,
             7 => MessageType::ChatMessage,
             8 => MessageType::Pong,
             11 => MessageType::UserStats,

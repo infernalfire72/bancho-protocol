@@ -5,7 +5,7 @@ use bitflags::bitflags;
 use std::fmt::{Debug, Display, Formatter};
 
 bitflags! {
-    #[derive(Default, Copy, Clone)]
+    #[derive(Default, Copy, Clone, Eq, PartialEq)]
     pub struct Mods: u32 {
         const None = 0;
         const NoFail = 1 << 0;

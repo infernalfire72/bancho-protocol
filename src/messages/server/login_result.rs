@@ -3,7 +3,7 @@ use crate::serde::macros::{BinarySerialize, ByteSized, Message};
 
 #[derive(Debug, BinarySerialize, ByteSized, Message)]
 #[crate_root(crate)]
-#[message(MessageType::LoginSuccessful)]
-pub struct LoginSuccessful {
+#[message(MessageType::LoginResult)]
+pub struct LoginResult {
     pub user_id: i32,
 }

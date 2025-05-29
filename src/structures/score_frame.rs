@@ -1,6 +1,6 @@
 use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 
-#[derive(Debug, BinarySerialize, BinaryDeserialize, ByteSized)]
+#[derive(Debug, Default, BinarySerialize, BinaryDeserialize, ByteSized)]
 #[crate_root(crate)]
 pub struct ScoreFrame {
     pub time: i32,

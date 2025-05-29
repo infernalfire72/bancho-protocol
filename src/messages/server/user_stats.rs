@@ -14,7 +14,7 @@ pub struct UserStats<'a> {
     pub plays: i32,
     pub total_score: i64,
     pub global_rank: i32,
-    pub performance: i16,
+    pub performance: u16,
 }
 
 #[derive(Debug, BinarySerialize, ByteSized, Message)]

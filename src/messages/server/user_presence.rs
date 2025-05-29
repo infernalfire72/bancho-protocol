@@ -19,15 +19,15 @@ pub struct UserPresence<'a> {
 }
 
 impl<'a> UserPresence<'a> {
-    pub fn new(
+    pub const fn new(
         user_id: i32,
         username: &'a str,
         timezone: i8,
         country: Country,
         gamemode: Mode,
         privileges: Privileges,
-        longitude: f32,
         latitude: f32,
+        longitude: f32,
     ) -> Self {
         let timezone = (timezone + 24) as _;
         let privileges_gamemode = ((gamemode as u8) << 5) | ((privileges.bits() as u8) & 0x1f);
@@ -37,8 +37,8 @@ impl<'a> UserPresence<'a> {
             timezone,
             country,
             privileges_gamemode,
-            longitude,
             latitude,
+            longitude,
             global_rank: 0,
         }
     }
