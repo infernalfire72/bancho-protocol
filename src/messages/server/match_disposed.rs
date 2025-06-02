@@ -5,5 +5,5 @@ use crate::serde::macros::{BinarySerialize, ByteSized, Message};
 #[crate_root(crate)]
 #[message(MessageType::MatchDisposed)]
 pub struct MatchDisposed {
-    pub match_id: i16,
+    pub match_id: i32,
 }
