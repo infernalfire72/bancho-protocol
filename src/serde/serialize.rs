@@ -2,36 +2,26 @@ use crate::serde::byte_sized::ByteSized;
 use crate::serde::uleb128::v32;
 
 pub struct BinaryWriter {
-    pub(crate) underlying: Vec<u8>,
-    pub(crate) position: usize,
+    pub data: Vec<u8>,
 }
 
 impl BinaryWriter {
     pub fn with_length(cap: usize) -> Self {
         Self {
-            underlying: vec![0; cap],
-            position: 0,
+            data: Vec::with_capacity(cap),
         }
-    }
-
-    pub fn skip(&mut self, count: usize) {
-        self.position += count
     }
 
     pub fn write_byte(&mut self, v: u8) {
-        self.underlying[self.position] = v;
-        self.position += 1
+        self.data.push(v);
     }
 
     pub fn write_byte_slice(&mut self, v: &[u8]) {
-        unsafe {
-            std::ptr::copy(
-                v.as_ptr(),
-                self.underlying.as_mut_ptr().offset(self.position as _),
-                v.len(),
-            )
-        }
-        self.position += v.len()
+        self.data.extend_from_slice(v);
+    }
+
+    pub fn write_const<const SIZE: usize>(&mut self, array: [u8; SIZE]) {
+        self.data.extend_from_slice(&array);
     }
 
     pub fn write<T: BinarySerialize>(&mut self, v: T) {
@@ -39,7 +29,7 @@ impl BinaryWriter {
     }
 
     pub fn data(self) -> Vec<u8> {
-        self.underlying
+        self.data
     }
 }
 
@@ -60,11 +50,7 @@ macro_rules! impl_serialize {
     ($t:ty) => {
         impl BinarySerialize for $t {
             fn write_to(&self, writer: &mut BinaryWriter) {
-                unsafe { std::ptr::write_unaligned(
-                    writer.underlying.as_mut_ptr().add(writer.position) as *mut $t,
-                    *self
-                ) };
-                writer.position += std::mem::size_of::<$t>()
+                writer.write_const(self.to_le_bytes())
             }
         }
     };

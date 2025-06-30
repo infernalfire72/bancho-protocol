@@ -79,6 +79,7 @@ pub use silence_end::SilenceEnd;
 pub use spectator_frames::SpectatorFrames;
 pub use spectator_joined::{FellowSpectatorJoined, SpectatorJoined};
 pub use spectator_left::{FellowSpectatorLeft, SpectatorLeft};
+pub use switch_server::SwitchServer;
 pub use target_silenced::TargetSilenced;
 pub use user_logout::UserLogout;
 pub use user_presence::{UserPresence, UserPresenceBundle, UserPresenceSingle};

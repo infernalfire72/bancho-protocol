@@ -50,7 +50,7 @@ pub fn byte_sized_enum_impl(
     quote! {
         impl #crate_root::serde::byte_sized::ByteSized for #ident {
             fn byte_size(&self) -> usize {
-                <#repr>::byte_size(&unsafe { *((self as *const _) as *const #repr) })
+                <#repr>::byte_size(&0)
             }
         }
     }

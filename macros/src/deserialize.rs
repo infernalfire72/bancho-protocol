@@ -65,7 +65,8 @@ pub fn binde_enum_impl(
     quote! {
         impl<'a> #crate_root::serde::deserialize::BinaryDeserialize<'a> for #ident {
             fn read_from(reader: &mut #crate_root::serde::deserialize::BinaryReader<'a>) -> std::io::Result<Self> where Self: Sized {
-                Ok(unsafe { std::mem::transmute(<#repr>::read_from(reader)?) })
+                let val = <#repr>::read_from(reader)?;
+                Self::try_from(val)
             }
         }
     }

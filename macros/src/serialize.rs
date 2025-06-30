@@ -50,7 +50,8 @@ pub fn binser_enum_impl(
     quote! {
         impl #crate_root::serde::serialize::BinarySerialize for #ident {
             fn write_to(&self, writer: &mut #crate_root::serde::serialize::BinaryWriter) {
-                <#repr>::write_to(&unsafe { *((self as *const _) as *const #repr) }, writer)
+                let v = (*self) as #repr;
+                v.write_to(writer);
             }
         }
     }

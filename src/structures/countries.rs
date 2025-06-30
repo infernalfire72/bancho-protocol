@@ -525,10 +525,6 @@ impl Country {
         }
     }
 
-    pub unsafe fn from_iso3166_2_unchecked(country_code: &str) -> Country {
-        Country::from_iso3166_2_u16(*(country_code.as_ptr() as *const u16))
-    }
-
     pub fn try_from_iso3166_2(country_code: &str) -> Result<Country> {
         if country_code.len() != 2 {
             return Err(Error::new(
@@ -800,5 +796,18 @@ impl Country {
             Country::SaintBarthelemy => "BL",
             Country::SaintMartin => "MF",
         }
+    }
+}
+
+impl TryFrom<u8> for Country {
+    type Error = Error;
+
+    fn try_from(mut value: u8) -> std::result::Result<Self, Self::Error> {
+        if value > 252 {
+            value = 0;
+        }
+
+        // SAFETY: `Country` has 253 variants
+        Ok(unsafe{ std::mem::transmute(value) })
     }
 }

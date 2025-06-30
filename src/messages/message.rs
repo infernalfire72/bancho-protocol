@@ -27,7 +27,7 @@ impl<'a> BinaryDeserialize<'a> for MessageHeader {
 
 pub trait MessageArgs: Sized + BinarySerialize {
     const MESSAGE_TYPE: MessageType;
-    fn as_message(&self) -> Message<Self> {
+    fn as_message(&self) -> Message<'_, Self> {
         Message(self)
     }
 }

@@ -19,7 +19,7 @@ bitflags! {
 
 impl ByteSized for SlotStatus {
     fn byte_size(&self) -> usize {
-        std::mem::size_of::<u8>()
+        size_of::<u8>()
     }
 }
 
