@@ -54,6 +54,7 @@ pub enum MessageType {
     // Server
     LoginResult = 5,
     ChatMessage = 7,
+    UsernameChanged = 9,
     Pong = 8,
     UserStats = 11,
     UserLogout = 12,

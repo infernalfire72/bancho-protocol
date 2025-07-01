@@ -41,6 +41,7 @@ mod user_logout;
 mod user_presence;
 mod user_silenced;
 mod user_stats;
+mod username_changed;
 
 pub use alert::Alert;
 pub use channel_autojoin::ChannelAutoJoin;
@@ -85,3 +86,4 @@ pub use user_logout::UserLogout;
 pub use user_presence::{UserPresence, UserPresenceBundle, UserPresenceSingle};
 pub use user_silenced::UserSilenced;
 pub use user_stats::{UserStats, UserStatsRef};
+pub use username_changed::UsernameChanged;

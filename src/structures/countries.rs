@@ -808,6 +808,6 @@ impl TryFrom<u8> for Country {
         }
 
         // SAFETY: `Country` has 253 variants
-        Ok(unsafe{ std::mem::transmute(value) })
+        Ok(unsafe { std::mem::transmute(value) })
     }
 }

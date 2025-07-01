@@ -1,5 +1,5 @@
-use std::io::Error;
 use crate::serde::uleb128::v32;
+use std::io::Error;
 
 pub struct BinaryReader<'a> {
     stream: &'a [u8],
@@ -122,7 +122,8 @@ impl<'a> BinaryDeserialize<'a> for &'a str {
 
         let len = v32::read_from(reader)?;
         let bytes = reader.next_range(len.0 as usize)?;
-        std::str::from_utf8(bytes).map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "invalid UTF-8"))
+        std::str::from_utf8(bytes)
+            .map_err(|_| Error::new(std::io::ErrorKind::InvalidData, "invalid UTF-8"))
     }
 }
 

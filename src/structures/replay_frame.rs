@@ -1,10 +1,10 @@
-use std::io::{Error, ErrorKind};
 use crate::serde::byte_sized::ByteSized;
 use crate::serde::osu_types::PrefixedVec;
 use crate::serde::{BinaryDeserialize, BinaryReader, BinarySerialize, BinaryWriter};
 use crate::structures::ScoreFrame;
 use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 use bitflags::bitflags;
+use std::io::{Error, ErrorKind};
 
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, BinaryDeserialize, BinarySerialize, ByteSized)]
@@ -57,10 +57,7 @@ impl TryFrom<u8> for ReplayAction {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         if value > 8 {
-            Err(Error::new(
-                ErrorKind::InvalidData,
-                "invalid replay action",
-            ))
+            Err(Error::new(ErrorKind::InvalidData, "invalid replay action"))
         } else {
             // SAFETY: `ReplayAction` has 9 variants
             Ok(unsafe { std::mem::transmute(value) })
