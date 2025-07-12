@@ -11,6 +11,17 @@ pub enum Mode {
     Mania,
 }
 
+impl Mode {
+    pub fn from_np(np_mode: &str) -> Option<Mode> {
+        match np_mode {
+            "Taiko" => Some(Mode::Taiko),
+            "CatchTheBeat" => Some(Mode::Catch),
+            "osu!mania" => Some(Mode::Mania),
+            _ => None,
+        }
+    }
+}
+
 impl TryFrom<u8> for Mode {
     type Error = Error;
 

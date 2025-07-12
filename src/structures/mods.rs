@@ -3,6 +3,8 @@ use crate::serde::deserialize::{BinaryDeserialize, BinaryReader};
 use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use bitflags::bitflags;
 use std::fmt::{Debug, Display, Formatter};
+use std::io::{Error, ErrorKind};
+use std::str::FromStr;
 
 bitflags! {
     #[derive(Default, Copy, Clone, Eq, PartialEq)]
@@ -75,6 +77,76 @@ impl<'a> BinaryDeserialize<'a> for Mods {
     }
 }
 
+pub const MODS_SHORT: [&'static str; 31] = [
+    "NF", "EZ", "TD", "HD", "HR", "SD", "DT", "RX", "HT", "NC", "FL", "AT", "SO", "AP", "PF", "4K",
+    "5K", "6K", "7K", "8K", "FI", "RN", "CN", "TP", "9K", "CO", "1K", "3K", "2K", "V2", "MR",
+];
+
+pub const NP_MODS: [&str; 31] = [
+    "-NoFail",
+    "-Easy",
+    "~TouchDevice~",
+    "+Hidden",
+    "+HardRock",
+    "+SuddenDeath",
+    "+DoubleTime",
+    "~Relax~",
+    "-HalfTime",
+    "+Nightcore",
+    "+Flashlight",
+    "|Autoplay|",
+    "-SpunOut",
+    "~Autopilot~",
+    "+Perfect",
+    "|4K|",
+    "|5K|",
+    "|6K|",
+    "|7K|",
+    "|8K|",
+    "+FadeIn",
+    "~Random~",
+    "|Cinema|",
+    "~Target~",
+    "|9K|",
+    "|Coop|",
+    "|1K|",
+    "|3K|",
+    "|2K|",
+    "~ScoreV2~",
+    "~Mirror~",
+];
+
+impl Mods {
+    pub fn from_code<T: AsRef<[u8]>>(code: T) -> Mods {
+        MODS_SHORT
+            .into_iter()
+            .position(|x| x.as_bytes() == code.as_ref())
+            .map(|pos| Mods::from_bits_truncate(1 << pos))
+            .unwrap_or(Mods::None)
+    }
+
+    pub fn from_np(np_mod: &str) -> Mods {
+        match NP_MODS.into_iter().position(|mod_str| mod_str == np_mod) {
+            None => Mods::None,
+            Some(mod_index) => Mods::from_bits_truncate(1 << mod_index),
+        }
+    }
+}
+
+impl FromStr for Mods {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if !s.is_ascii() {
+            return Err(Error::new(ErrorKind::InvalidInput, "invalid mod input"));
+        }
+
+        Ok(s.as_bytes()
+            .chunks(2)
+            .fold(Mods::None, |mods, mod_str| mods | Mods::from_code(mod_str)))
+    }
+}
+
 const MODS_DEBUG: [&'static str; 31] = [
     "NoFail",
     "Easy",
@@ -107,11 +179,6 @@ const MODS_DEBUG: [&'static str; 31] = [
     "Keys2",
     "ScoreV2",
     "Mirror",
-];
-
-const MODS_SHORT: [&'static str; 31] = [
-    "NF", "EZ", "TD", "HD", "HR", "SD", "DT", "RX", "HT", "NC", "FL", "AT", "SO", "AP", "PF", "4K",
-    "5K", "6K", "7K", "8K", "FI", "RN", "CN", "TP", "9K", "CO", "1K", "3K", "2K", "V2", "MR",
 ];
 
 impl Debug for Mods {
