@@ -2,7 +2,9 @@ use bancho_protocol_macros::{BinaryDeserialize, BinarySerialize, ByteSized};
 use std::io::Error;
 
 #[repr(u8)]
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, BinaryDeserialize, BinarySerialize, ByteSized)]
+#[derive(
+    Debug, Default, Copy, Clone, Eq, PartialEq, BinaryDeserialize, BinarySerialize, ByteSized,
+)]
 #[crate_root(crate)]
 pub enum Mode {
     #[default]

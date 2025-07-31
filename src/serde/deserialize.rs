@@ -99,6 +99,12 @@ macro_rules! impl_deserialize {
     }
 }
 
+impl BinaryDeserialize<'_> for () {
+    fn read_from(_reader: &mut BinaryReader<'_>) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
 impl<'a> BinaryDeserialize<'a> for u8 {
     fn read_from(reader: &mut BinaryReader<'a>) -> std::io::Result<Self> {
         reader.next()

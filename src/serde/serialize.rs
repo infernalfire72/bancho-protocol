@@ -62,6 +62,10 @@ macro_rules! impl_serialize {
 
 impl_serialize!(u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
 
+impl BinarySerialize for () {
+    fn write_to(&self, _writer: &mut BinaryWriter) {}
+}
+
 impl BinarySerialize for u8 {
     fn write_to(&self, writer: &mut BinaryWriter) {
         writer.write_byte(*self);

@@ -20,6 +20,12 @@ macro_rules! impl_bytesized {
 
 impl_bytesized!(bool, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
 
+impl ByteSized for () {
+    fn byte_size(&self) -> usize {
+        0
+    }
+}
+
 impl<const N: usize, T: ByteSized> ByteSized for [T; N] {
     fn byte_size(&self) -> usize {
         self.iter().map(|n| T::byte_size(n)).sum()
