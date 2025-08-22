@@ -43,7 +43,7 @@ impl TryFrom<u8> for MatchTeam {
 }
 
 #[repr(u8)]
-#[derive(Debug, Copy, Clone, BinaryDeserialize, BinarySerialize, ByteSized)]
+#[derive(Debug, Copy, Clone, BinaryDeserialize, BinarySerialize, ByteSized, Eq, PartialEq, Hash)]
 #[crate_root(crate)]
 pub enum MatchTeamType {
     HeadToHead,
