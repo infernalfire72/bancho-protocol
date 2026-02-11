@@ -5,3 +5,37 @@ use crate::serde::macros::BinaryDeserialize;
 pub struct MatchChangeSlot {
     pub slot_id: i32,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::serde::BinaryDeserialize;
+
+    #[test]
+    fn test_match_change_slot_zero() {
+        let data = [0, 0, 0, 0];
+        let msg = MatchChangeSlot::deserialize(&data).unwrap();
+        assert_eq!(msg.slot_id, 0);
+    }
+
+    #[test]
+    fn test_match_change_slot_valid() {
+        let data = [7, 0, 0, 0];
+        let msg = MatchChangeSlot::deserialize(&data).unwrap();
+        assert_eq!(msg.slot_id, 7);
+    }
+
+    #[test]
+    fn test_match_change_slot_max() {
+        let data = [255, 255, 255, 127];
+        let msg = MatchChangeSlot::deserialize(&data).unwrap();
+        assert_eq!(msg.slot_id, i32::MAX);
+    }
+
+    #[test]
+    fn test_match_change_slot_debug_format() {
+        let msg = MatchChangeSlot { slot_id: 3 };
+        let debug_str = format!("{:?}", msg);
+        assert!(debug_str.contains("3"));
+    }
+}

@@ -12,3 +12,6 @@ proc-macro = true
 syn = { version = "2.0.38", features = ["full"] }
 quote = "1.0"
 proc-macro2 = "1.0"
+
+[dev-dependencies]
+bancho-protocol = { path = ".." }

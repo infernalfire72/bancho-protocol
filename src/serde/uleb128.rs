@@ -70,3 +70,169 @@ impl<'a> BinaryDeserialize<'a> for v32 {
         Ok(Self(r))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Display impl
+    #[test]
+    fn test_v32_display() {
+        let v = v32(42);
+        assert_eq!(format!("{}", v), "42");
+    }
+
+    #[test]
+    fn test_v32_display_zero() {
+        let v = v32(0);
+        assert_eq!(format!("{}", v), "0");
+    }
+
+    #[test]
+    fn test_v32_display_large() {
+        let v = v32(1_000_000);
+        assert_eq!(format!("{}", v), "1000000");
+    }
+
+    // Debug impl
+    #[test]
+    fn test_v32_debug() {
+        let v = v32(42);
+        assert_eq!(format!("{:?}", v), "42");
+    }
+
+    #[test]
+    fn test_v32_debug_zero() {
+        let v = v32(0);
+        assert_eq!(format!("{:?}", v), "0");
+    }
+
+    // ByteSized - 1 byte range (0..128)
+    #[test]
+    fn test_v32_byte_size_1_byte() {
+        assert_eq!(v32(0).byte_size(), 1);
+        assert_eq!(v32(1).byte_size(), 1);
+        assert_eq!(v32(127).byte_size(), 1);
+    }
+
+    // ByteSized - 2 byte range (128..16384)
+    #[test]
+    fn test_v32_byte_size_2_bytes() {
+        assert_eq!(v32(128).byte_size(), 2);
+        assert_eq!(v32(16383).byte_size(), 2);
+    }
+
+    // ByteSized - 3 byte range (16384..2097152)
+    #[test]
+    fn test_v32_byte_size_3_bytes() {
+        assert_eq!(v32(16384).byte_size(), 3);
+        assert_eq!(v32(2097151).byte_size(), 3);
+    }
+
+    // ByteSized - 4 byte range (2097152..268435456)
+    #[test]
+    fn test_v32_byte_size_4_bytes() {
+        assert_eq!(v32(2097152).byte_size(), 4);
+        assert_eq!(v32(268435455).byte_size(), 4);
+    }
+
+    // ByteSized - 5 byte range (268435456..)
+    #[test]
+    fn test_v32_byte_size_5_bytes() {
+        assert_eq!(v32(268435456).byte_size(), 5);
+        assert_eq!(v32(u32::MAX).byte_size(), 5);
+    }
+
+    // write_to (BinarySerialize)
+    #[test]
+    fn test_v32_write_to_single_byte() {
+        let v = v32(42);
+        let bytes = v.serialize();
+        assert_eq!(bytes, vec![42]);
+    }
+
+    #[test]
+    fn test_v32_write_to_zero() {
+        let v = v32(0);
+        let bytes = v.serialize();
+        assert_eq!(bytes, vec![0]);
+    }
+
+    #[test]
+    fn test_v32_write_to_multi_byte() {
+        let v = v32(300);
+        let bytes = v.serialize();
+        // 300 = 0b100101100 -> 0b0101100 | 0x80, 0b0000010
+        assert_eq!(bytes, vec![0xAC, 0x02]);
+    }
+
+    #[test]
+    fn test_v32_write_to_max_single_byte() {
+        let v = v32(127);
+        let bytes = v.serialize();
+        assert_eq!(bytes, vec![127]);
+    }
+
+    #[test]
+    fn test_v32_write_to_min_two_bytes() {
+        let v = v32(128);
+        let bytes = v.serialize();
+        assert_eq!(bytes, vec![0x80, 0x01]);
+    }
+
+    // Roundtrip serialize/deserialize
+    #[test]
+    fn test_v32_roundtrip_zero() {
+        let original = v32(0);
+        let bytes = original.serialize();
+        let decoded = v32::deserialize(&bytes).unwrap();
+        assert_eq!(decoded.0, 0);
+    }
+
+    #[test]
+    fn test_v32_roundtrip_small() {
+        let original = v32(42);
+        let bytes = original.serialize();
+        let decoded = v32::deserialize(&bytes).unwrap();
+        assert_eq!(decoded.0, 42);
+    }
+
+    #[test]
+    fn test_v32_roundtrip_large() {
+        let original = v32(1_000_000);
+        let bytes = original.serialize();
+        let decoded = v32::deserialize(&bytes).unwrap();
+        assert_eq!(decoded.0, 1_000_000);
+    }
+
+    #[test]
+    fn test_v32_roundtrip_max() {
+        let original = v32(u32::MAX);
+        let bytes = original.serialize();
+        let decoded = v32::deserialize(&bytes).unwrap();
+        assert_eq!(decoded.0, u32::MAX);
+    }
+
+    // Deserialize error
+    #[test]
+    fn test_v32_deserialize_eof() {
+        let data: [u8; 0] = [];
+        assert!(v32::deserialize(&data).is_err());
+    }
+
+    #[test]
+    fn test_v32_deserialize_truncated_multibyte() {
+        // A continuation byte (0x80 set) with no following byte
+        let data = [0x80];
+        assert!(v32::deserialize(&data).is_err());
+    }
+
+    // Serialized length matches byte_size
+    #[test]
+    fn test_v32_serialize_length_matches_byte_size() {
+        for val in [0, 1, 127, 128, 16383, 16384, 2097151, 2097152, 268435455, 268435456, u32::MAX] {
+            let v = v32(val);
+            assert_eq!(v.serialize().len(), v.byte_size(), "mismatch for value {}", val);
+        }
+    }
+}

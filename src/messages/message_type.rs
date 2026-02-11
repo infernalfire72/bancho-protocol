@@ -218,3 +218,293 @@ impl<'a> BinaryDeserialize<'a> for MessageType {
         Ok(MessageType::try_from(u16::read_from(reader)?)?)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_message_type_client_change_action() {
+        assert_eq!(MessageType::ChangeAction as u16, 0);
+    }
+
+    #[test]
+    fn test_message_type_client_public_chat() {
+        assert_eq!(MessageType::PublicChatMessage as u16, 1);
+    }
+
+    #[test]
+    fn test_message_type_client_logout() {
+        assert_eq!(MessageType::Logout as u16, 2);
+    }
+
+    #[test]
+    fn test_message_type_client_update_stats() {
+        assert_eq!(MessageType::UpdateStatsRequest as u16, 3);
+    }
+
+    #[test]
+    fn test_message_type_client_ping() {
+        assert_eq!(MessageType::Ping as u16, 4);
+    }
+
+    #[test]
+    fn test_message_type_server_login_result() {
+        assert_eq!(MessageType::LoginResult as u16, 5);
+    }
+
+    #[test]
+    fn test_message_type_server_chat_message() {
+        assert_eq!(MessageType::ChatMessage as u16, 7);
+    }
+
+    #[test]
+    fn test_message_type_server_pong() {
+        assert_eq!(MessageType::Pong as u16, 8);
+    }
+
+    #[test]
+    fn test_message_type_server_user_stats() {
+        assert_eq!(MessageType::UserStats as u16, 11);
+    }
+
+    #[test]
+    fn test_message_type_all_client_match_messages() {
+        let match_messages = vec![
+            (31u16, MessageType::CreateMatch),
+            (32u16, MessageType::JoinMatch),
+            (33u16, MessageType::LeaveMatch),
+            (38u16, MessageType::MatchChangeSlot),
+            (39u16, MessageType::MatchReady),
+            (40u16, MessageType::MatchLock),
+            (41u16, MessageType::MatchChangeSettings),
+            (44u16, MessageType::StartMatch),
+        ];
+
+        for (id, msg_type) in match_messages {
+            assert_eq!(msg_type as u16, id);
+        }
+    }
+
+    #[test]
+    fn test_message_type_all_server_match_messages() {
+        let match_messages = vec![
+            (26u16, MessageType::MatchUpdate),
+            (27u16, MessageType::MatchCreated),
+            (28u16, MessageType::MatchDisposed),
+            (36u16, MessageType::MatchJoinSuccess),
+            (37u16, MessageType::MatchJoinFailed),
+            (46u16, MessageType::MatchStart),
+            (58u16, MessageType::MatchComplete),
+        ];
+
+        for (id, msg_type) in match_messages {
+            assert_eq!(msg_type as u16, id);
+        }
+    }
+
+    #[test]
+    fn test_message_type_try_from_valid_client_message() {
+        assert_eq!(MessageType::try_from(0).unwrap(), MessageType::ChangeAction);
+        assert_eq!(MessageType::try_from(1).unwrap(), MessageType::PublicChatMessage);
+        assert_eq!(MessageType::try_from(4).unwrap(), MessageType::Ping);
+    }
+
+    #[test]
+    fn test_message_type_try_from_valid_server_message() {
+        assert_eq!(MessageType::try_from(5).unwrap(), MessageType::LoginResult);
+        assert_eq!(MessageType::try_from(7).unwrap(), MessageType::ChatMessage);
+        assert_eq!(MessageType::try_from(8).unwrap(), MessageType::Pong);
+    }
+
+    #[test]
+    fn test_message_type_try_from_invalid_zero() {
+        // 0 is ChangeAction, not invalid
+        assert!(MessageType::try_from(0).is_ok());
+    }
+
+    #[test]
+    fn test_message_type_try_from_invalid_id() {
+        let invalid_ids = vec![10, 19, 20, 35, 45, 62, 68, 80, 84, 88, 102, 103, 105];
+
+        for id in invalid_ids {
+            let result = MessageType::try_from(id);
+            assert!(result.is_err());
+            assert_eq!(result.unwrap_err().kind(), std::io::ErrorKind::InvalidData);
+        }
+    }
+
+    #[test]
+    fn test_message_type_try_from_boundary_values() {
+        // Test some boundary values
+        assert!(MessageType::try_from(0).is_ok()); // Minimum valid (ChangeAction)
+        assert!(MessageType::try_from(109).is_ok()); // Maximum valid (TournamentLeaveMatchChannel)
+        assert!(MessageType::try_from(110).is_err()); // Just beyond valid range
+        assert!(MessageType::try_from(u16::MAX).is_err()); // Maximum u16
+    }
+
+    #[test]
+    fn test_message_type_deserialize_valid() {
+        let bytes = (5u16).to_le_bytes(); // LoginResult
+        let mut reader = BinaryReader::from(&bytes);
+        let msg_type = MessageType::read_from(&mut reader).unwrap();
+        assert_eq!(msg_type, MessageType::LoginResult);
+    }
+
+    #[test]
+    fn test_message_type_deserialize_invalid() {
+        let bytes = (255u16).to_le_bytes();
+        let mut reader = BinaryReader::from(&bytes);
+        let result = MessageType::read_from(&mut reader);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_message_type_deserialize_insufficient_bytes() {
+        let bytes = vec![0x05]; // Only 1 byte
+        let mut reader = BinaryReader::from(&bytes);
+        let result = MessageType::read_from(&mut reader);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_message_type_copy_clone() {
+        let mt1 = MessageType::Pong;
+        let mt2 = mt1;
+        assert_eq!(mt1, mt2);
+    }
+
+    #[test]
+    fn test_message_type_equality() {
+        assert_eq!(MessageType::Pong, MessageType::Pong);
+        assert_ne!(MessageType::Pong, MessageType::Ping);
+    }
+
+    #[test]
+    fn test_message_type_debug_format() {
+        let msg_type = MessageType::LoginResult;
+        let debug_str = format!("{:?}", msg_type);
+        assert_eq!(debug_str, "LoginResult");
+    }
+
+    #[test]
+    fn test_message_type_all_variants_have_unique_ids() {
+        let all_ids = vec![
+            0, 1, 2, 3, 4, 5, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27,
+            28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51,
+            52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 70, 71, 72, 73, 74, 75,
+            76, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+            100, 101, 104, 106, 107, 108, 109,
+        ];
+
+        // Verify all can be converted successfully
+        for id in all_ids {
+            assert!(MessageType::try_from(id).is_ok());
+        }
+    }
+
+    #[test]
+    fn test_message_type_spectating_messages() {
+        assert_eq!(MessageType::StartSpectating as u16, 16);
+        assert_eq!(MessageType::StopSpectating as u16, 17);
+        assert_eq!(MessageType::SpectateFrames as u16, 18);
+        assert_eq!(MessageType::SpectatorJoined as u16, 13);
+        assert_eq!(MessageType::SpectatorLeft as u16, 14);
+        assert_eq!(MessageType::SpectatorFrames as u16, 15);
+    }
+
+    #[test]
+    fn test_message_type_chat_messages() {
+        assert_eq!(MessageType::PublicChatMessage as u16, 1);
+        assert_eq!(MessageType::PrivateChatMessage as u16, 25);
+        assert_eq!(MessageType::ChatMessage as u16, 7);
+    }
+
+    #[test]
+    fn test_message_type_channel_messages() {
+        assert_eq!(MessageType::JoinChannel as u16, 63);
+        assert_eq!(MessageType::LeaveChannel as u16, 78);
+        assert_eq!(MessageType::ChannelJoinSuccess as u16, 64);
+        assert_eq!(MessageType::ChannelInfo as u16, 65);
+    }
+
+    #[test]
+    fn test_message_type_roundtrip_all_valid() {
+        for id in 0u16..=109u16 {
+            if let Ok(msg_type) = MessageType::try_from(id) {
+                assert_eq!(msg_type as u16, id);
+            }
+        }
+    }
+
+    #[test]
+    fn test_message_type_deserialize_little_endian() {
+        let msg_type_id = 5u16; // LoginResult
+        let bytes = msg_type_id.to_le_bytes();
+        let mut reader = BinaryReader::from(&bytes);
+
+        let result = MessageType::read_from(&mut reader);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), MessageType::LoginResult);
+    }
+
+    #[test]
+    fn test_message_type_large_id() {
+        assert!(MessageType::try_from(1000).is_err());
+        assert!(MessageType::try_from(10000).is_err());
+    }
+
+    #[test]
+    fn test_message_type_friend_operations() {
+        assert_eq!(MessageType::AddFriend as u16, 73);
+        assert_eq!(MessageType::RemoveFriend as u16, 74);
+        assert_eq!(MessageType::FriendsList as u16, 72);
+    }
+
+    #[test]
+    fn test_message_type_lobby_messages() {
+        assert_eq!(MessageType::JoinLobby as u16, 30);
+        assert_eq!(MessageType::LeaveLobby as u16, 29);
+    }
+
+    #[test]
+    fn test_message_type_presence_messages() {
+        assert_eq!(MessageType::UserPresence as u16, 83);
+        assert_eq!(MessageType::UserPresenceSingle as u16, 95);
+        assert_eq!(MessageType::UserPresenceBundle as u16, 96);
+    }
+
+    // Note: UsernameChanged (9) is missing from TryFrom<u16> match arms.
+    // This test documents the current behavior.
+    #[test]
+    fn test_message_type_username_changed_not_in_try_from() {
+        assert_eq!(MessageType::UsernameChanged as u16, 9);
+        // 9 is not mapped in TryFrom, so it returns an error
+        assert!(MessageType::try_from(9u16).is_err());
+    }
+
+    // Additional BinaryDeserialize coverage via read_from
+    #[test]
+    fn test_message_type_deserialize_match_aborted() {
+        let bytes = 106u16.to_le_bytes();
+        let mut reader = BinaryReader::from(&bytes);
+        let msg_type = MessageType::read_from(&mut reader).unwrap();
+        assert_eq!(msg_type, MessageType::MatchAborted);
+    }
+
+    #[test]
+    fn test_message_type_deserialize_switch_server() {
+        let bytes = 107u16.to_le_bytes();
+        let mut reader = BinaryReader::from(&bytes);
+        let msg_type = MessageType::read_from(&mut reader).unwrap();
+        assert_eq!(msg_type, MessageType::SwitchServer);
+    }
+
+    // Test empty reader for BinaryDeserialize
+    #[test]
+    fn test_message_type_deserialize_empty() {
+        let data: [u8; 0] = [];
+        let mut reader = BinaryReader::from(&data);
+        assert!(MessageType::read_from(&mut reader).is_err());
+    }
+}

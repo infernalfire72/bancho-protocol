@@ -110,3 +110,181 @@ impl<const N: usize, T: BinarySerialize> BinarySerialize for [T; N] {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::serde::deserialize::BinaryDeserialize;
+
+    // Primitive roundtrips via serialize()
+    #[test]
+    fn test_serialize_u8() {
+        let val = 42u8;
+        let bytes = val.serialize();
+        assert_eq!(bytes, vec![42]);
+    }
+
+    #[test]
+    fn test_serialize_u16() {
+        let val = 1234u16;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_u32() {
+        let val = 123456u32;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_u64() {
+        let val = 9999999999u64;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_i8() {
+        let val = -42i8;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_i16() {
+        let val = -1234i16;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_i32() {
+        let val = -100000i32;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_i64() {
+        let val = -9999999999i64;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_f32() {
+        let val = 3.14f32;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    #[test]
+    fn test_serialize_f64() {
+        let val = 3.14159265f64;
+        let bytes = val.serialize();
+        assert_eq!(bytes, val.to_le_bytes().to_vec());
+    }
+
+    // bool serialization
+    #[test]
+    fn test_serialize_bool_true() {
+        let bytes = true.serialize();
+        assert_eq!(bytes, vec![1]);
+    }
+
+    #[test]
+    fn test_serialize_bool_false() {
+        let bytes = false.serialize();
+        assert_eq!(bytes, vec![0]);
+    }
+
+    // Unit serialization
+    #[test]
+    fn test_serialize_unit() {
+        let bytes = ().serialize();
+        assert!(bytes.is_empty());
+    }
+
+    // str serialization (via write_to, since str is unsized)
+    #[test]
+    fn test_serialize_str_empty() {
+        let mut writer = BinaryWriter::with_length(1);
+        "".write_to(&mut writer);
+        assert_eq!(writer.data(), vec![0x00]);
+    }
+
+    #[test]
+    fn test_serialize_str_nonempty() {
+        let mut writer = BinaryWriter::with_length(4);
+        "hi".write_to(&mut writer);
+        // 0x0b prefix, uleb128 length (2), then "hi"
+        assert_eq!(writer.data(), vec![0x0b, 0x02, b'h', b'i']);
+    }
+
+    // String serialization
+    #[test]
+    fn test_serialize_string() {
+        let s = String::from("abc");
+        let bytes = s.serialize();
+        assert_eq!(bytes, vec![0x0b, 0x03, b'a', b'b', b'c']);
+    }
+
+    // Array serialization
+    #[test]
+    fn test_serialize_array_u8() {
+        let arr: [u8; 3] = [10, 20, 30];
+        let bytes = arr.serialize();
+        assert_eq!(bytes, vec![10, 20, 30]);
+    }
+
+    #[test]
+    fn test_serialize_array_u16() {
+        let arr: [u16; 2] = [100, 200];
+        let bytes = arr.serialize();
+        let mut expected = Vec::new();
+        expected.extend_from_slice(&100u16.to_le_bytes());
+        expected.extend_from_slice(&200u16.to_le_bytes());
+        assert_eq!(bytes, expected);
+    }
+
+    #[test]
+    fn test_serialize_array_roundtrip() {
+        let arr: [u32; 3] = [1, 2, 3];
+        let bytes = arr.serialize();
+        let decoded = <[u32; 3]>::deserialize(&bytes).unwrap();
+        assert_eq!(decoded, arr);
+    }
+
+    // BinaryWriter methods
+    #[test]
+    fn test_binary_writer_write_byte_slice() {
+        let mut writer = BinaryWriter::with_length(4);
+        writer.write_byte_slice(&[1, 2, 3, 4]);
+        assert_eq!(writer.data(), vec![1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_binary_writer_write_const() {
+        let mut writer = BinaryWriter::with_length(3);
+        writer.write_const([10, 20, 30]);
+        assert_eq!(writer.data(), vec![10, 20, 30]);
+    }
+
+    #[test]
+    fn test_binary_writer_write_generic() {
+        let mut writer = BinaryWriter::with_length(4);
+        writer.write(42u32);
+        assert_eq!(writer.data(), 42u32.to_le_bytes().to_vec());
+    }
+
+    // serialize() trait default method (preallocates correct size)
+    #[test]
+    fn test_serialize_trait_default_method() {
+        let val = 42u32;
+        let bytes = val.serialize();
+        assert_eq!(bytes.len(), 4);
+        assert_eq!(u32::deserialize(&bytes).unwrap(), 42);
+    }
+}

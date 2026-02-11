@@ -219,3 +219,214 @@ impl Display for Mods {
         Display::fmt(&mods_format, f)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mods_default_none() {
+        assert_eq!(Mods::default(), Mods::None);
+        assert_eq!(Mods::default().bits(), 0);
+    }
+
+    #[test]
+    fn test_mods_individual_flags() {
+        assert_eq!(Mods::NoFail.bits(), 1 << 0);
+        assert_eq!(Mods::Easy.bits(), 1 << 1);
+        assert_eq!(Mods::Hidden.bits(), 1 << 3);
+        assert_eq!(Mods::HardRock.bits(), 1 << 4);
+        assert_eq!(Mods::Doubletime.bits(), 1 << 6);
+        assert_eq!(Mods::Flashlight.bits(), 1 << 10);
+    }
+
+    #[test]
+    fn test_mods_combination() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        assert!(mods.contains(Mods::Hidden));
+        assert!(mods.contains(Mods::HardRock));
+        assert!(!mods.contains(Mods::Easy));
+    }
+
+    #[test]
+    fn test_mods_has_all() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        assert!(mods.has_all(Mods::Hidden));
+        assert!(mods.has_all(Mods::HardRock));
+        assert!(mods.has_all(Mods::Hidden | Mods::HardRock));
+        assert!(!mods.has_all(Mods::Easy));
+    }
+
+    #[test]
+    fn test_mods_has_any() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        assert!(mods.has_any(Mods::Hidden));
+        assert!(mods.has_any(Mods::HardRock));
+        assert!(mods.has_any(Mods::Hidden | Mods::Easy));
+        assert!(!mods.has_any(Mods::Easy));
+    }
+
+    #[test]
+    fn test_mods_none() {
+        assert_eq!(Mods::None.bits(), 0);
+        assert!(!Mods::None.contains(Mods::Hidden));
+    }
+
+    #[test]
+    fn test_mods_from_code_valid() {
+        assert_eq!(Mods::from_code("NF"), Mods::NoFail);
+        assert_eq!(Mods::from_code("EZ"), Mods::Easy);
+        assert_eq!(Mods::from_code("HD"), Mods::Hidden);
+        assert_eq!(Mods::from_code("HR"), Mods::HardRock);
+        assert_eq!(Mods::from_code("DT"), Mods::Doubletime);
+        assert_eq!(Mods::from_code("FL"), Mods::Flashlight);
+    }
+
+    #[test]
+    fn test_mods_from_code_invalid() {
+        assert_eq!(Mods::from_code("XX"), Mods::None);
+        assert_eq!(Mods::from_code(""), Mods::None);
+    }
+
+    #[test]
+    fn test_mods_from_np_valid() {
+        assert_eq!(Mods::from_np("+Hidden"), Mods::Hidden);
+        assert_eq!(Mods::from_np("+HardRock"), Mods::HardRock);
+        assert_eq!(Mods::from_np("+DoubleTime"), Mods::Doubletime);
+        assert_eq!(Mods::from_np("-NoFail"), Mods::NoFail);
+    }
+
+    #[test]
+    fn test_mods_from_np_invalid() {
+        assert_eq!(Mods::from_np("InvalidMod"), Mods::None);
+        assert_eq!(Mods::from_np(""), Mods::None);
+    }
+
+    #[test]
+    fn test_mods_from_str_single() {
+        let mods = "HD".parse::<Mods>().unwrap();
+        assert_eq!(mods, Mods::Hidden);
+    }
+
+    #[test]
+    fn test_mods_from_str_multiple() {
+        let mods = "HDHR".parse::<Mods>().unwrap();
+        assert!(mods.contains(Mods::Hidden));
+        assert!(mods.contains(Mods::HardRock));
+    }
+
+    #[test]
+    fn test_mods_from_str_none() {
+        let mods = "".parse::<Mods>().unwrap();
+        assert_eq!(mods, Mods::None);
+    }
+
+    #[test]
+    fn test_mods_from_str_invalid_non_ascii() {
+        let result = "HD🎮".parse::<Mods>();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_mods_display_single() {
+        let mods = Mods::Hidden;
+        assert_eq!(mods.to_string(), "+HD");
+    }
+
+    #[test]
+    fn test_mods_display_multiple() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        let s = mods.to_string();
+        assert!(s.contains("HD"));
+        assert!(s.contains("HR"));
+        assert!(s.starts_with("+"));
+    }
+
+    #[test]
+    fn test_mods_display_none() {
+        let mods = Mods::None;
+        assert_eq!(mods.to_string(), "");
+    }
+
+    #[test]
+    fn test_mods_debug_single() {
+        let mods = Mods::Hidden;
+        let debug_str = format!("{:?}", mods);
+        assert!(debug_str.contains("Hidden"));
+    }
+
+    #[test]
+    fn test_mods_debug_multiple() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        let debug_str = format!("{:?}", mods);
+        assert!(debug_str.contains("Hidden"));
+        assert!(debug_str.contains("HardRock"));
+    }
+
+    #[test]
+    fn test_mods_bitwise_operations() {
+        let m1 = Mods::Hidden | Mods::HardRock;
+        let m2 = Mods::HardRock | Mods::Doubletime;
+
+        let union = m1 | m2;
+        assert!(union.contains(Mods::Hidden));
+        assert!(union.contains(Mods::HardRock));
+        assert!(union.contains(Mods::Doubletime));
+
+        let intersection = m1 & m2;
+        assert_eq!(intersection, Mods::HardRock);
+    }
+
+    #[test]
+    fn test_mods_equality() {
+        let m1 = Mods::Hidden | Mods::HardRock;
+        let m2 = Mods::HardRock | Mods::Hidden;
+        assert_eq!(m1, m2);
+    }
+
+    #[test]
+    fn test_mods_copy_clone() {
+        let m1 = Mods::Hidden | Mods::HardRock;
+        let m2 = m1;
+        assert_eq!(m1, m2);
+    }
+
+    #[test]
+    fn test_mods_all_key_mods() {
+        assert_eq!(Mods::Keys4.bits(), 1 << 15);
+        assert_eq!(Mods::Keys5.bits(), 1 << 16);
+        assert_eq!(Mods::Keys6.bits(), 1 << 17);
+        assert_eq!(Mods::Keys7.bits(), 1 << 18);
+        assert_eq!(Mods::Keys8.bits(), 1 << 19);
+        assert_eq!(Mods::Keys9.bits(), 1 << 24);
+    }
+
+    #[test]
+    fn test_mods_speed_mods() {
+        assert_eq!(Mods::Doubletime.bits(), 1 << 6);
+        assert_eq!(Mods::Halftime.bits(), 1 << 8);
+        assert_eq!(Mods::Nightcore.bits(), 1 << 9);
+    }
+
+    #[test]
+    fn test_mods_difficulty_increase() {
+        assert_eq!(Mods::Hidden.bits(), 1 << 3);
+        assert_eq!(Mods::HardRock.bits(), 1 << 4);
+        assert_eq!(Mods::Flashlight.bits(), 1 << 10);
+    }
+
+    #[test]
+    fn test_mods_from_bits_truncate() {
+        let mods = Mods::from_bits_truncate(0xFF);
+        assert!(mods.contains(Mods::NoFail));
+        assert!(mods.contains(Mods::Easy));
+        assert!(mods.contains(Mods::Hidden));
+    }
+
+    #[test]
+    fn test_mods_from_code_with_bytes() {
+        let code_bytes = b"FL";
+        let mods = Mods::from_code(code_bytes);
+        assert_eq!(mods, Mods::Flashlight);
+    }
+}
