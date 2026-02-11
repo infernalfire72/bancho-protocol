@@ -77,88 +77,27 @@ mod tests {
     }
 
     #[test]
-    fn test_action_idle() {
-        let action = Action::Idle;
-        assert_eq!(action, Action::Idle);
-        assert_eq!(action as u8, 0);
-    }
-
-    #[test]
-    fn test_action_afk() {
-        let action = Action::AFK;
-        assert_eq!(action as u8, 1);
-    }
-
-    #[test]
-    fn test_action_playing() {
-        let action = Action::Playing;
-        assert_eq!(action as u8, 2);
-    }
-
-    #[test]
-    fn test_action_editing() {
-        let action = Action::Editing;
-        assert_eq!(action as u8, 3);
-    }
-
-    #[test]
-    fn test_action_modding() {
-        let action = Action::Modding;
-        assert_eq!(action as u8, 4);
-    }
-
-    #[test]
-    fn test_action_multiplayer() {
-        let action = Action::Multiplayer;
-        assert_eq!(action as u8, 5);
-    }
-
-    #[test]
-    fn test_action_watching() {
-        let action = Action::Watching;
-        assert_eq!(action as u8, 6);
-    }
-
-    #[test]
-    fn test_action_ranking() {
-        let action = Action::Ranking;
-        assert_eq!(action as u8, 7);
-    }
-
-    #[test]
-    fn test_action_testing() {
-        let action = Action::Testing;
-        assert_eq!(action as u8, 8);
-    }
-
-    #[test]
-    fn test_action_submitting() {
-        let action = Action::Submitting;
-        assert_eq!(action as u8, 9);
-    }
-
-    #[test]
-    fn test_action_paused() {
-        let action = Action::Paused;
-        assert_eq!(action as u8, 10);
-    }
-
-    #[test]
-    fn test_action_lobby() {
-        let action = Action::Lobby;
-        assert_eq!(action as u8, 11);
-    }
-
-    #[test]
-    fn test_action_multiplaying() {
-        let action = Action::Multiplaying;
-        assert_eq!(action as u8, 12);
-    }
-
-    #[test]
-    fn test_action_direct() {
-        let action = Action::Direct;
-        assert_eq!(action as u8, 13);
+    fn test_action_wire_values() {
+        use crate::serde::BinarySerialize;
+        let expected: &[(Action, u8)] = &[
+            (Action::Idle, 0),
+            (Action::AFK, 1),
+            (Action::Playing, 2),
+            (Action::Editing, 3),
+            (Action::Modding, 4),
+            (Action::Multiplayer, 5),
+            (Action::Watching, 6),
+            (Action::Ranking, 7),
+            (Action::Testing, 8),
+            (Action::Submitting, 9),
+            (Action::Paused, 10),
+            (Action::Lobby, 11),
+            (Action::Multiplaying, 12),
+            (Action::Direct, 13),
+        ];
+        for (action, byte) in expected {
+            assert_eq!(action.serialize(), [*byte]);
+        }
     }
 
     #[test]

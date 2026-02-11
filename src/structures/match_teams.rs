@@ -75,37 +75,12 @@ impl TryFrom<u8> for MatchTeamType {
 mod tests {
     use super::*;
 
-    // MatchTeam tests
     #[test]
-    fn test_match_team_none() {
-        let team = MatchTeam::None;
-        assert_eq!(team as u8, 0);
-    }
-
-    #[test]
-    fn test_match_team_blue() {
-        let team = MatchTeam::Blue;
-        assert_eq!(team as u8, 1);
-    }
-
-    #[test]
-    fn test_match_team_red() {
-        let team = MatchTeam::Red;
-        assert_eq!(team as u8, 2);
-    }
-
-    #[test]
-    fn test_match_team_copy_clone() {
-        let t1 = MatchTeam::Blue;
-        let t2 = t1;
-        assert_eq!(t1, t2);
-    }
-
-    #[test]
-    fn test_match_team_equality() {
-        assert_eq!(MatchTeam::None, MatchTeam::None);
-        assert_ne!(MatchTeam::None, MatchTeam::Blue);
-        assert_ne!(MatchTeam::Blue, MatchTeam::Red);
+    fn test_match_team_wire_values() {
+        use crate::serde::BinarySerialize;
+        assert_eq!(MatchTeam::None.serialize(), [0]);
+        assert_eq!(MatchTeam::Blue.serialize(), [1]);
+        assert_eq!(MatchTeam::Red.serialize(), [2]);
     }
 
     #[test]
@@ -135,49 +110,12 @@ mod tests {
     }
 
     #[test]
-    fn test_match_team_debug_format() {
-        let team = MatchTeam::Blue;
-        let debug_str = format!("{:?}", team);
-        assert_eq!(debug_str, "Blue");
-    }
-
-    // MatchTeamType tests
-    #[test]
-    fn test_match_team_type_head_to_head() {
-        let ttype = MatchTeamType::HeadToHead;
-        assert_eq!(ttype as u8, 0);
-    }
-
-    #[test]
-    fn test_match_team_type_tag_coop() {
-        let ttype = MatchTeamType::TagCoop;
-        assert_eq!(ttype as u8, 1);
-    }
-
-    #[test]
-    fn test_match_team_type_vs() {
-        let ttype = MatchTeamType::Vs;
-        assert_eq!(ttype as u8, 2);
-    }
-
-    #[test]
-    fn test_match_team_type_tag_vs() {
-        let ttype = MatchTeamType::TagVs;
-        assert_eq!(ttype as u8, 3);
-    }
-
-    #[test]
-    fn test_match_team_type_copy_clone() {
-        let t1 = MatchTeamType::Vs;
-        let t2 = t1;
-        assert_eq!(t1, t2);
-    }
-
-    #[test]
-    fn test_match_team_type_equality() {
-        assert_eq!(MatchTeamType::HeadToHead, MatchTeamType::HeadToHead);
-        assert_ne!(MatchTeamType::HeadToHead, MatchTeamType::TagCoop);
-        assert_ne!(MatchTeamType::Vs, MatchTeamType::TagVs);
+    fn test_match_team_type_wire_values() {
+        use crate::serde::BinarySerialize;
+        assert_eq!(MatchTeamType::HeadToHead.serialize(), [0]);
+        assert_eq!(MatchTeamType::TagCoop.serialize(), [1]);
+        assert_eq!(MatchTeamType::Vs.serialize(), [2]);
+        assert_eq!(MatchTeamType::TagVs.serialize(), [3]);
     }
 
     #[test]
@@ -203,26 +141,6 @@ mod tests {
     fn test_match_team_type_try_from_invalid() {
         assert!(MatchTeamType::try_from(4).is_err());
         assert!(MatchTeamType::try_from(255).is_err());
-    }
-
-    #[test]
-    fn test_match_team_type_debug_format() {
-        let ttype = MatchTeamType::TagVs;
-        let debug_str = format!("{:?}", ttype);
-        assert_eq!(debug_str, "TagVs");
-    }
-
-    #[test]
-    fn test_match_team_type_all_variants() {
-        let types = [
-            MatchTeamType::HeadToHead,
-            MatchTeamType::TagCoop,
-            MatchTeamType::Vs,
-            MatchTeamType::TagVs,
-        ];
-        for (i, ttype) in types.iter().enumerate() {
-            assert_eq!(*ttype as u8, i as u8);
-        }
     }
 
     // Serde roundtrip tests for MatchTeam

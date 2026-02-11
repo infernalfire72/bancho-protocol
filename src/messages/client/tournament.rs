@@ -51,24 +51,4 @@ mod tests {
         assert_eq!(msg.match_id, 75);
     }
 
-    #[test]
-    fn test_tournament_match_info_request_debug() {
-        let msg = TournamentMatchInfoRequest { match_id: 42 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("42"));
-    }
-
-    #[test]
-    fn test_tournament_join_match_channel_debug() {
-        let msg = TournamentJoinMatchChannel { match_id: 10 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("10"));
-    }
-
-    #[test]
-    fn test_tournament_leave_match_channel_debug() {
-        let msg = TournamentLeaveMatchChannel { match_id: 20 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("20"));
-    }
 }

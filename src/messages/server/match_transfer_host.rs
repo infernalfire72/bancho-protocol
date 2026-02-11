@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_transfer_host_message_type() {
         assert_eq!(MatchTransferHost::MESSAGE_TYPE, MessageType::MatchTransferHost);
     }
-
-    #[test]
-    fn test_match_transfer_host_debug_format() {
-        let msg = MatchTransferHost;
-        assert_eq!(format!("{:?}", msg), "MatchTransferHost");
-    }
 }

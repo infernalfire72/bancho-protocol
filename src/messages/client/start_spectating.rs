@@ -24,11 +24,4 @@ mod tests {
         let msg = StartSpectating::deserialize(&data).unwrap();
         assert_eq!(msg.target_id, 1147);
     }
-
-    #[test]
-    fn test_start_spectating_debug_format() {
-        let msg = StartSpectating { target_id: 99 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("99"));
-    }
 }

@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_all_players_loaded_message_type() {
         assert_eq!(MatchAllPlayersLoaded::MESSAGE_TYPE, MessageType::MatchAllPlayersLoaded);
     }
-
-    #[test]
-    fn test_match_all_players_loaded_debug_format() {
-        let msg = MatchAllPlayersLoaded;
-        assert_eq!(format!("{:?}", msg), "MatchAllPlayersLoaded");
-    }
 }

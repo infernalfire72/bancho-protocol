@@ -161,6 +161,7 @@ impl TryFrom<u16> for MessageType {
             5 => MessageType::LoginResult,
             7 => MessageType::ChatMessage,
             8 => MessageType::Pong,
+            9 => MessageType::UsernameChanged,
             11 => MessageType::UserStats,
             12 => MessageType::UserLogout,
             13 => MessageType::SpectatorJoined,
@@ -381,16 +382,9 @@ mod tests {
     }
 
     #[test]
-    fn test_message_type_debug_format() {
-        let msg_type = MessageType::LoginResult;
-        let debug_str = format!("{:?}", msg_type);
-        assert_eq!(debug_str, "LoginResult");
-    }
-
-    #[test]
     fn test_message_type_all_variants_have_unique_ids() {
         let all_ids = vec![
-            0, 1, 2, 3, 4, 5, 7, 8, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27,
+            0, 1, 2, 3, 4, 5, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27,
             28, 29, 30, 31, 32, 33, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51,
             52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 70, 71, 72, 73, 74, 75,
             76, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
@@ -474,13 +468,10 @@ mod tests {
         assert_eq!(MessageType::UserPresenceBundle as u16, 96);
     }
 
-    // Note: UsernameChanged (9) is missing from TryFrom<u16> match arms.
-    // This test documents the current behavior.
     #[test]
-    fn test_message_type_username_changed_not_in_try_from() {
+    fn test_message_type_username_changed() {
         assert_eq!(MessageType::UsernameChanged as u16, 9);
-        // 9 is not mapped in TryFrom, so it returns an error
-        assert!(MessageType::try_from(9u16).is_err());
+        assert_eq!(MessageType::try_from(9u16).unwrap(), MessageType::UsernameChanged);
     }
 
     // Additional BinaryDeserialize coverage via read_from

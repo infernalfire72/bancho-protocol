@@ -67,10 +67,10 @@ mod tests {
     use crate::structures::{Country, Mode, Privileges};
 
     #[test]
-    fn test_user_presence_new_basic() {
+    fn test_user_presence_serialize_basic() {
         let presence = UserPresence::new(
             1000,
-            "testuser",
+            "ab",
             0,
             Country::Unknown,
             Mode::Standard,
@@ -78,74 +78,63 @@ mod tests {
             0.0,
             0.0,
         );
-        assert_eq!(presence.user_id, 1000);
-        assert_eq!(presence.username, "testuser");
-        assert_eq!(presence.timezone, 24); // 0 + 24
-        assert_eq!(presence.longitude, 0.0);
-        assert_eq!(presence.latitude, 0.0);
-        assert_eq!(presence.global_rank, 0);
+        let bytes = presence.serialize();
+        // user_id: i32(1000) LE
+        assert_eq!(&bytes[0..4], &1000i32.to_le_bytes());
+        // username: "ab" = 0x0b + uleb(2) + b"ab"
+        assert_eq!(&bytes[4..8], &[0x0b, 2, b'a', b'b']);
+        // timezone: 0 + 24 = 24
+        assert_eq!(bytes[8], 24);
+        // country: Unknown = 0
+        assert_eq!(bytes[9], 0);
+        // privileges_gamemode: Standard(0) << 5 | Player(1) & 0x1f = 1
+        assert_eq!(bytes[10], 1);
+        // longitude: 0.0
+        assert_eq!(&bytes[11..15], &0.0f32.to_le_bytes());
+        // latitude: 0.0
+        assert_eq!(&bytes[15..19], &0.0f32.to_le_bytes());
+        // global_rank: 0
+        assert_eq!(&bytes[19..23], &0i32.to_le_bytes());
     }
 
     #[test]
-    fn test_user_presence_new_negative_timezone() {
+    fn test_user_presence_timezone_negative() {
         let presence = UserPresence::new(
-            1,
-            "user",
-            -12,
-            Country::Unknown,
-            Mode::Standard,
-            Privileges::None,
-            0.0,
-            0.0,
+            1, "a", -12, Country::Unknown, Mode::Standard, Privileges::None, 0.0, 0.0,
         );
-        assert_eq!(presence.timezone, 12); // -12 + 24
+        let bytes = presence.serialize();
+        // timezone byte is at offset 7 (i32 + 0x0b + uleb(1) + 'a')
+        assert_eq!(bytes[7], 12); // -12 + 24
     }
 
     #[test]
-    fn test_user_presence_new_positive_timezone() {
+    fn test_user_presence_timezone_positive() {
         let presence = UserPresence::new(
-            1,
-            "user",
-            12,
-            Country::Unknown,
-            Mode::Standard,
-            Privileges::None,
-            0.0,
-            0.0,
+            1, "a", 12, Country::Unknown, Mode::Standard, Privileges::None, 0.0, 0.0,
         );
-        assert_eq!(presence.timezone, 36); // 12 + 24
+        let bytes = presence.serialize();
+        assert_eq!(bytes[7], 36); // 12 + 24
     }
 
     #[test]
     fn test_user_presence_privileges_gamemode_encoding() {
-        // Mode::Taiko (1) << 5 = 0x20, Privileges::Player (1) & 0x1f = 1
+        // Mode::Taiko (1) << 5 | Privileges::Player (1) & 0x1f = 0x21
         let presence = UserPresence::new(
-            1,
-            "user",
-            0,
-            Country::Unknown,
-            Mode::Taiko,
-            Privileges::Player,
-            0.0,
-            0.0,
+            1, "a", 0, Country::Unknown, Mode::Taiko, Privileges::Player, 0.0, 0.0,
         );
-        assert_eq!(presence.privileges_gamemode, (1 << 5) | 1);
+        let bytes = presence.serialize();
+        // privileges_gamemode byte is at offset 9 (i32 + str("a":3) + tz + country)
+        assert_eq!(bytes[9], (1 << 5) | 1);
     }
 
     #[test]
     fn test_user_presence_privileges_gamemode_mania_supporter() {
-        // Mode::Mania (3) << 5 = 0x60, Privileges::Supporter (4) & 0x1f = 4
+        // Mode::Mania (3) << 5 | Privileges::Supporter (4) & 0x1f = 0x64
         let presence = UserPresence::new(
-            1,
-            "user",
-            0,
-            Country::Unknown,
-            Mode::Mania,
-            Privileges::Supporter,
-            0.0,
-            0.0,
+            1, "a", 0, Country::Unknown, Mode::Mania, Privileges::Supporter, 0.0, 0.0,
         );
-        assert_eq!(presence.privileges_gamemode, (3 << 5) | 4);
+        let bytes = presence.serialize();
+        assert_eq!(bytes[9], (3 << 5) | 4);
     }
 
     #[test]

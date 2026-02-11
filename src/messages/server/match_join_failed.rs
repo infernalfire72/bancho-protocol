@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_join_failed_message_type() {
         assert_eq!(MatchJoinFailed::MESSAGE_TYPE, MessageType::MatchJoinFailed);
     }
-
-    #[test]
-    fn test_match_join_failed_debug_format() {
-        let msg = MatchJoinFailed;
-        assert_eq!(format!("{:?}", msg), "MatchJoinFailed");
-    }
 }

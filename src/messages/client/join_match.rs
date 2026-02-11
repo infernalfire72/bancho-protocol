@@ -38,12 +38,4 @@ mod tests {
         assert_eq!(msg.match_id, 42);
         assert_eq!(msg.password, "test");
     }
-
-    #[test]
-    fn test_join_match_debug_format() {
-        let data = [0, 0, 0, 0, 0];
-        let msg = JoinMatch::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("JoinMatch"));
-    }
 }

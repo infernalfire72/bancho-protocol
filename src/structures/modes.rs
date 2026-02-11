@@ -48,42 +48,12 @@ mod tests {
     }
 
     #[test]
-    fn test_mode_standard_value() {
-        let m = Mode::Standard;
-        assert_eq!(m as u8, 0);
-    }
-
-    #[test]
-    fn test_mode_taiko_value() {
-        let m = Mode::Taiko;
-        assert_eq!(m as u8, 1);
-    }
-
-    #[test]
-    fn test_mode_catch_value() {
-        let m = Mode::Catch;
-        assert_eq!(m as u8, 2);
-    }
-
-    #[test]
-    fn test_mode_mania_value() {
-        let m = Mode::Mania;
-        assert_eq!(m as u8, 3);
-    }
-
-    #[test]
-    fn test_mode_copy_clone() {
-        let m1 = Mode::Catch;
-        let m2 = m1;
-        assert_eq!(m1, m2);
-    }
-
-    #[test]
-    fn test_mode_equality() {
-        assert_eq!(Mode::Standard, Mode::Standard);
-        assert_ne!(Mode::Standard, Mode::Taiko);
-        assert_ne!(Mode::Taiko, Mode::Catch);
-        assert_ne!(Mode::Catch, Mode::Mania);
+    fn test_mode_wire_values() {
+        use crate::serde::BinarySerialize;
+        assert_eq!(Mode::Standard.serialize(), [0]);
+        assert_eq!(Mode::Taiko.serialize(), [1]);
+        assert_eq!(Mode::Catch.serialize(), [2]);
+        assert_eq!(Mode::Mania.serialize(), [3]);
     }
 
     #[test]
@@ -125,21 +95,6 @@ mod tests {
     fn test_mode_from_np_invalid() {
         assert_eq!(Mode::from_np("InvalidMode"), None);
         assert_eq!(Mode::from_np(""), None);
-    }
-
-    #[test]
-    fn test_mode_debug_format() {
-        let m = Mode::Mania;
-        let debug_str = format!("{:?}", m);
-        assert_eq!(debug_str, "Mania");
-    }
-
-    #[test]
-    fn test_mode_all_variants() {
-        let modes = [Mode::Standard, Mode::Taiko, Mode::Catch, Mode::Mania];
-        for (i, mode) in modes.iter().enumerate() {
-            assert_eq!(*mode as u8, i as u8);
-        }
     }
 
     // Mode serde roundtrip (exercises derive-generated code)

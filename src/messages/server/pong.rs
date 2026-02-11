@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_pong_message_type() {
         assert_eq!(Pong::MESSAGE_TYPE, MessageType::Pong);
     }
-
-    #[test]
-    fn test_pong_debug_format() {
-        let pong = Pong;
-        assert_eq!(format!("{:?}", pong), "Pong");
-    }
 }

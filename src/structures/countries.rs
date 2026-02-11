@@ -900,7 +900,7 @@ mod tests {
     #[test]
     fn test_spot_checks() {
         assert_eq!(Country::UnitedStates.code(), "US");
-        assert_eq!(Country::Unknown as u8, 0);
+        assert_eq!(Country::Unknown.serialize(), [0]);
         assert_eq!(Country::default(), Country::Unknown);
     }
 

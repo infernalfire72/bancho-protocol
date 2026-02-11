@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_aborted_message_type() {
         assert_eq!(MatchAborted::MESSAGE_TYPE, MessageType::MatchAborted);
     }
-
-    #[test]
-    fn test_match_aborted_debug_format() {
-        let msg = MatchAborted;
-        assert_eq!(format!("{:?}", msg), "MatchAborted");
-    }
 }

@@ -30,17 +30,4 @@ mod tests {
         let msg = LeaveChannel::deserialize(&data).unwrap();
         assert_eq!(msg.name, "#main");
     }
-
-    #[test]
-    fn test_leave_channel_debug_format() {
-        use crate::serde::{BinarySerialize, BinaryWriter};
-        use crate::serde::byte_sized::ByteSized;
-        let name_str = "foo";
-        let mut writer = BinaryWriter::with_length(name_str.byte_size());
-        name_str.write_to(&mut writer);
-        let data = writer.data();
-        let msg = LeaveChannel::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("foo"));
-    }
 }

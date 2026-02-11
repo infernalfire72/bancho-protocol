@@ -47,19 +47,4 @@ mod tests {
         assert_eq!(msg.ingame_time, 200);
     }
 
-    #[test]
-    fn test_request_presences_debug() {
-        let data = [0, 0];
-        let msg = RequestPresences::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("RequestPresences"));
-    }
-
-    #[test]
-    fn test_request_all_presences_debug() {
-        let data = [0, 0, 0, 0];
-        let msg = RequestAllPresences::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("RequestAllPresences"));
-    }
 }

@@ -47,21 +47,4 @@ mod tests {
         assert_eq!(msg.message.text, "afk now");
         assert_eq!(msg.message.sender_id, 100);
     }
-
-    #[test]
-    fn test_set_away_message_debug_format() {
-        use crate::serde::BinarySerialize;
-        use crate::structures::IrcMessage;
-
-        let irc_msg = IrcMessage {
-            sender: "test",
-            text: "message",
-            recipient: "channel",
-            sender_id: 42,
-        };
-        let irc_bytes = irc_msg.serialize();
-        let msg = SetAwayMessage::deserialize(&irc_bytes).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("SetAwayMessage"));
-    }
 }

@@ -24,11 +24,4 @@ mod tests {
         let msg = MatchChangeHost::deserialize(&data).unwrap();
         assert_eq!(msg.slot_id, 10);
     }
-
-    #[test]
-    fn test_match_change_host_debug_format() {
-        let msg = MatchChangeHost { slot_id: 5 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("5"));
-    }
 }

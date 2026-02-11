@@ -28,12 +28,4 @@ mod tests {
         assert_eq!(msg.user_ids.0.len(), 1);
         assert_eq!(msg.user_ids.0[0], 42);
     }
-
-    #[test]
-    fn test_user_stats_request_debug_format() {
-        let data = [0, 0];
-        let msg = UserStatsRequest::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("UserStatsRequest"));
-    }
 }

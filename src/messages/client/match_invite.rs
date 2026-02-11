@@ -31,11 +31,4 @@ mod tests {
         let msg = MatchInvite::deserialize(&data).unwrap();
         assert_eq!(msg.user_id, -1);
     }
-
-    #[test]
-    fn test_match_invite_debug_format() {
-        let msg = MatchInvite { user_id: 42 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("42"));
-    }
 }

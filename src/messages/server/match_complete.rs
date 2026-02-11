@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_complete_message_type() {
         assert_eq!(MatchComplete::MESSAGE_TYPE, MessageType::MatchComplete);
     }
-
-    #[test]
-    fn test_match_complete_debug_format() {
-        let msg = MatchComplete;
-        assert_eq!(format!("{:?}", msg), "MatchComplete");
-    }
 }

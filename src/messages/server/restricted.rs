@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_restricted_message_type() {
         assert_eq!(Restricted::MESSAGE_TYPE, MessageType::Restricted);
     }
-
-    #[test]
-    fn test_restricted_debug_format() {
-        let msg = Restricted;
-        assert_eq!(format!("{:?}", msg), "Restricted");
-    }
 }

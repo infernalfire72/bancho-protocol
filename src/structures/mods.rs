@@ -349,21 +349,6 @@ mod tests {
     }
 
     #[test]
-    fn test_mods_debug_single() {
-        let mods = Mods::Hidden;
-        let debug_str = format!("{:?}", mods);
-        assert!(debug_str.contains("Hidden"));
-    }
-
-    #[test]
-    fn test_mods_debug_multiple() {
-        let mods = Mods::Hidden | Mods::HardRock;
-        let debug_str = format!("{:?}", mods);
-        assert!(debug_str.contains("Hidden"));
-        assert!(debug_str.contains("HardRock"));
-    }
-
-    #[test]
     fn test_mods_bitwise_operations() {
         let m1 = Mods::Hidden | Mods::HardRock;
         let m2 = Mods::HardRock | Mods::Doubletime;
@@ -428,5 +413,31 @@ mod tests {
         let code_bytes = b"FL";
         let mods = Mods::from_code(code_bytes);
         assert_eq!(mods, Mods::Flashlight);
+    }
+
+    #[test]
+    fn test_mods_serde_roundtrip() {
+        use crate::serde::{BinarySerialize, BinaryDeserialize};
+        let mods = Mods::Hidden | Mods::HardRock | Mods::Doubletime;
+        let bytes = mods.serialize();
+        let decoded = Mods::deserialize(&bytes).unwrap();
+        assert_eq!(mods, decoded);
+    }
+
+    #[test]
+    fn test_mods_serde_roundtrip_none() {
+        use crate::serde::{BinarySerialize, BinaryDeserialize};
+        let mods = Mods::None;
+        let bytes = mods.serialize();
+        let decoded = Mods::deserialize(&bytes).unwrap();
+        assert_eq!(mods, decoded);
+    }
+
+    #[test]
+    fn test_mods_debug() {
+        let mods = Mods::Hidden | Mods::HardRock;
+        let debug = format!("{:?}", mods);
+        assert!(debug.contains("Hidden"));
+        assert!(debug.contains("HardRock"));
     }
 }

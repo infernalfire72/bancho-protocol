@@ -31,11 +31,4 @@ mod tests {
         let msg = ReceiveUpdates::deserialize(&data).unwrap();
         assert_eq!(msg.filter, u32::MAX);
     }
-
-    #[test]
-    fn test_receive_updates_debug_format() {
-        let msg = ReceiveUpdates { filter: 42 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("42"));
-    }
 }

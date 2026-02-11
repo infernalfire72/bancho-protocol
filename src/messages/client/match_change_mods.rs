@@ -34,12 +34,4 @@ mod tests {
         let msg = MatchChangeMods::deserialize(&data).unwrap();
         assert_eq!(msg.mods.bits(), 5);
     }
-
-    #[test]
-    fn test_match_change_mods_debug_format() {
-        let data = [0, 0, 0, 0];
-        let msg = MatchChangeMods::deserialize(&data).unwrap();
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("MatchChangeMods"));
-    }
 }

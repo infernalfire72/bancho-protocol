@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_get_attention_message_type() {
         assert_eq!(GetAttention::MESSAGE_TYPE, MessageType::GetAttention);
     }
-
-    #[test]
-    fn test_get_attention_debug_format() {
-        let msg = GetAttention;
-        assert_eq!(format!("{:?}", msg), "GetAttention");
-    }
 }

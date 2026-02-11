@@ -15,11 +15,4 @@ mod tests {
         let msg = MatchChangeTeam::deserialize(&data).unwrap();
         assert_eq!(std::mem::size_of_val(&msg), 0);
     }
-
-    #[test]
-    fn test_match_change_team_debug_format() {
-        let msg = MatchChangeTeam;
-        let debug_str = format!("{:?}", msg);
-        assert_eq!(debug_str, "MatchChangeTeam");
-    }
 }

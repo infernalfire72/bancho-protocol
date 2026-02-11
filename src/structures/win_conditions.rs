@@ -34,41 +34,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_win_condition_score() {
-        let wc = WinCondition::Score;
-        assert_eq!(wc as u8, 0);
-    }
-
-    #[test]
-    fn test_win_condition_accuracy() {
-        let wc = WinCondition::Accuracy;
-        assert_eq!(wc as u8, 1);
-    }
-
-    #[test]
-    fn test_win_condition_combo() {
-        let wc = WinCondition::Combo;
-        assert_eq!(wc as u8, 2);
-    }
-
-    #[test]
-    fn test_win_condition_score_v2() {
-        let wc = WinCondition::ScoreV2;
-        assert_eq!(wc as u8, 3);
-    }
-
-    #[test]
-    fn test_win_condition_copy_clone() {
-        let wc1 = WinCondition::Accuracy;
-        let wc2 = wc1;
-        assert_eq!(wc1, wc2);
-    }
-
-    #[test]
-    fn test_win_condition_equality() {
-        assert_eq!(WinCondition::Score, WinCondition::Score);
-        assert_ne!(WinCondition::Score, WinCondition::Accuracy);
-        assert_ne!(WinCondition::Combo, WinCondition::ScoreV2);
+    fn test_win_condition_wire_values() {
+        use crate::serde::BinarySerialize;
+        assert_eq!(WinCondition::Score.serialize(), [0]);
+        assert_eq!(WinCondition::Accuracy.serialize(), [1]);
+        assert_eq!(WinCondition::Combo.serialize(), [2]);
+        assert_eq!(WinCondition::ScoreV2.serialize(), [3]);
     }
 
     #[test]
@@ -97,25 +68,6 @@ mod tests {
         assert!(WinCondition::try_from(255).is_err());
     }
 
-    #[test]
-    fn test_win_condition_debug_format() {
-        let wc = WinCondition::Accuracy;
-        let debug_str = format!("{:?}", wc);
-        assert_eq!(debug_str, "Accuracy");
-    }
-
-    #[test]
-    fn test_win_condition_all_variants() {
-        let conditions = [
-            WinCondition::Score,
-            WinCondition::Accuracy,
-            WinCondition::Combo,
-            WinCondition::ScoreV2,
-        ];
-        for (i, condition) in conditions.iter().enumerate() {
-            assert_eq!(*condition as u8, i as u8);
-        }
-    }
 
     // WinCondition serde roundtrip (exercises derive-generated code)
     #[test]

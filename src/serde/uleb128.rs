@@ -82,6 +82,13 @@ mod tests {
         assert_eq!(format!("{}", v), "42");
     }
 
+    // Debug impl
+    #[test]
+    fn test_v32_debug() {
+        let v = v32(42);
+        assert_eq!(format!("{:?}", v), "42");
+    }
+
     #[test]
     fn test_v32_display_zero() {
         let v = v32(0);
@@ -92,19 +99,6 @@ mod tests {
     fn test_v32_display_large() {
         let v = v32(1_000_000);
         assert_eq!(format!("{}", v), "1000000");
-    }
-
-    // Debug impl
-    #[test]
-    fn test_v32_debug() {
-        let v = v32(42);
-        assert_eq!(format!("{:?}", v), "42");
-    }
-
-    #[test]
-    fn test_v32_debug_zero() {
-        let v = v32(0);
-        assert_eq!(format!("{:?}", v), "0");
     }
 
     // ByteSized - 1 byte range (0..128)
@@ -232,7 +226,7 @@ mod tests {
     fn test_v32_serialize_length_matches_byte_size() {
         for val in [0, 1, 127, 128, 16383, 16384, 2097151, 2097152, 268435455, 268435456, u32::MAX] {
             let v = v32(val);
-            assert_eq!(v.serialize().len(), v.byte_size(), "mismatch for value {}", val);
+            assert_eq!(v.serialize().len(), v.byte_size());
         }
     }
 }

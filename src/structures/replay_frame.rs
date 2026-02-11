@@ -89,9 +89,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_replay_action_standard() {
-        let action = ReplayAction::Standard;
-        assert_eq!(action as u8, 0);
+    fn test_replay_action_wire_values() {
+        use crate::serde::BinarySerialize;
+        assert_eq!(ReplayAction::Standard.serialize(), [0]);
+        assert_eq!(ReplayAction::WatchingOther.serialize(), [8]);
     }
 
     #[test]

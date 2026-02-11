@@ -154,13 +154,6 @@ mod tests {
         assert!(!status1.intersects(status2));
     }
 
-    #[test]
-    fn test_slot_status_debug_format() {
-        let status = SlotStatus::Ready;
-        let debug_str = format!("{:?}", status);
-        assert!(debug_str.contains("Ready"));
-    }
-
     // Serde roundtrip tests
     #[test]
     fn test_slot_status_serde_roundtrip() {

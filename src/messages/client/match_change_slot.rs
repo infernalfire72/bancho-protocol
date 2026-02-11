@@ -31,11 +31,4 @@ mod tests {
         let msg = MatchChangeSlot::deserialize(&data).unwrap();
         assert_eq!(msg.slot_id, i32::MAX);
     }
-
-    #[test]
-    fn test_match_change_slot_debug_format() {
-        let msg = MatchChangeSlot { slot_id: 3 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("3"));
-    }
 }

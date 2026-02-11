@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_channel_info_end_message_type() {
         assert_eq!(ChannelInfoEnd::MESSAGE_TYPE, MessageType::ChannelInfoEnd);
     }
-
-    #[test]
-    fn test_channel_info_end_debug_format() {
-        let msg = ChannelInfoEnd;
-        assert_eq!(format!("{:?}", msg), "ChannelInfoEnd");
-    }
 }

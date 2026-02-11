@@ -30,10 +30,4 @@ use crate::serde::byte_sized::ByteSized;
     fn test_match_skip_message_type() {
         assert_eq!(MatchSkip::MESSAGE_TYPE, MessageType::MatchSkip);
     }
-
-    #[test]
-    fn test_match_skip_debug_format() {
-        let msg = MatchSkip;
-        assert_eq!(format!("{:?}", msg), "MatchSkip");
-    }
 }

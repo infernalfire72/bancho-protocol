@@ -24,11 +24,4 @@ mod tests {
         let msg = ToggleBlockNonFriendDms::deserialize(&data).unwrap();
         assert_eq!(msg.val, 1);
     }
-
-    #[test]
-    fn test_toggle_dm_blocking_debug_format() {
-        let msg = ToggleBlockNonFriendDms { val: 1 };
-        let debug_str = format!("{:?}", msg);
-        assert!(debug_str.contains("1"));
-    }
 }

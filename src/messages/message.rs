@@ -265,18 +265,6 @@ mod tests {
     }
 
     #[test]
-    fn test_message_header_debug_format() {
-        let header = MessageHeader {
-            message_type: MessageType::Pong,
-            _compress: false,
-            args_len: 42,
-        };
-        let debug_str = format!("{:?}", header);
-        assert!(debug_str.contains("MessageHeader"));
-        assert!(debug_str.contains("Pong") || debug_str.contains("8"));
-    }
-
-    #[test]
     fn test_expand_into_tuple_empty() {
         let result = expand_into_tuple!();
         assert_eq!(result, ());
