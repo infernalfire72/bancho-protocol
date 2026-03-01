@@ -1,35 +1,33 @@
 use crate::serde::byte_sized::ByteSized;
 use crate::serde::uleb128::v32;
 
-pub struct BinaryWriter {
-    pub data: Vec<u8>,
+pub struct BinaryWriter<'a> {
+    buffer: &'a mut [u8],
+    offset: usize,
 }
 
-impl BinaryWriter {
-    pub fn with_length(cap: usize) -> Self {
-        Self {
-            data: Vec::with_capacity(cap),
-        }
+impl<'a> BinaryWriter<'a> {
+    pub fn new(buffer: &'a mut [u8]) -> Self {
+        Self { buffer, offset: 0 }
     }
 
     pub fn write_byte(&mut self, v: u8) {
-        self.data.push(v);
+        self.buffer[self.offset] = v;
+        self.offset += 1;
     }
 
-    pub fn write_byte_slice(&mut self, v: &[u8]) {
-        self.data.extend_from_slice(v);
+    pub fn write_byte_slice(&mut self, slice: &[u8]) {
+        self.buffer[self.offset..self.offset + slice.len()].copy_from_slice(slice);
+        self.offset += slice.len();
     }
 
     pub fn write_const<const SIZE: usize>(&mut self, array: [u8; SIZE]) {
-        self.data.extend_from_slice(&array);
+        self.buffer[self.offset..self.offset + SIZE].copy_from_slice(&array);
+        self.offset += SIZE;
     }
 
     pub fn write<T: BinarySerialize>(&mut self, v: T) {
         v.write_to(self);
-    }
-
-    pub fn data(self) -> Vec<u8> {
-        self.data
     }
 }
 
@@ -40,9 +38,10 @@ pub trait BinarySerialize: ByteSized {
     where
         Self: Sized,
     {
-        let mut writer = BinaryWriter::with_length(self.byte_size());
+        let mut buffer = vec![0; self.byte_size()];
+        let mut writer = BinaryWriter::new(&mut buffer);
         self.write_to(&mut writer);
-        writer.data()
+        buffer
     }
 }
 
