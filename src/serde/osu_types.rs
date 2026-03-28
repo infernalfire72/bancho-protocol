@@ -4,7 +4,7 @@ use crate::serde::serialize::{BinarySerialize, BinaryWriter};
 use core::marker::PhantomData;
 use std::fmt::Debug;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PrefixedVec<P: TryFrom<usize> + Default + Debug, T>(pub Vec<T>, PhantomData<P>);
 
 // Serialize

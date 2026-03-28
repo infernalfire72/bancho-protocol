@@ -5,3 +5,23 @@ use crate::serde::macros::BinaryDeserialize;
 pub struct StartSpectating {
     pub target_id: i32,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::serde::BinaryDeserialize;
+
+    #[test]
+    fn test_start_spectating_zero_id() {
+        let data = [0, 0, 0, 0];
+        let msg = StartSpectating::deserialize(&data).unwrap();
+        assert_eq!(msg.target_id, 0);
+    }
+
+    #[test]
+    fn test_start_spectating_valid_id() {
+        let data = [123, 4, 0, 0];
+        let msg = StartSpectating::deserialize(&data).unwrap();
+        assert_eq!(msg.target_id, 1147);
+    }
+}

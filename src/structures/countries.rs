@@ -811,3 +811,102 @@ impl TryFrom<u8> for Country {
         Ok(unsafe { std::mem::transmute(value) })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::serde::byte_sized::ByteSized;
+    use crate::serde::{BinaryDeserialize, BinarySerialize};
+
+    #[test]
+    fn test_roundtrip_all_variants_via_code() {
+        for i in 0u8..=252 {
+            let country = Country::try_from(i).unwrap();
+            let code = country.code();
+
+            let roundtripped = Country::try_from_iso3166_2(code).unwrap();
+
+            // Unknown2 has code "XX" which maps back to Unknown
+            if country == Country::Unknown2 {
+                assert_eq!(roundtripped, Country::Unknown);
+            } else {
+                assert_eq!(roundtripped, country);
+            }
+        }
+    }
+
+    #[test]
+    fn test_from_iso3166_2_bytes_known_values() {
+        assert_eq!(Country::from_iso3166_2_bytes(*b"US"), Country::UnitedStates);
+        assert_eq!(Country::from_iso3166_2_bytes(*b"JP"), Country::Japan);
+        assert_eq!(Country::from_iso3166_2_bytes(*b"DE"), Country::Germany);
+        assert_eq!(Country::from_iso3166_2_bytes(*b"XX"), Country::Unknown);
+    }
+
+    #[test]
+    fn test_from_iso3166_2_bytes_unknown_input() {
+        assert_eq!(Country::from_iso3166_2_bytes(*b"??"), Country::Unknown2);
+        assert_eq!(Country::from_iso3166_2_bytes(*b"ZZ"), Country::Unknown2);
+    }
+
+    #[test]
+    fn test_try_from_u8_valid_boundaries() {
+        let first = Country::try_from(0u8).unwrap();
+        assert_eq!(first, Country::Unknown);
+
+        let last = Country::try_from(252u8).unwrap();
+        assert_eq!(last, Country::SaintMartin);
+    }
+
+    #[test]
+    fn test_try_from_u8_overflow_wraps_to_unknown() {
+        for i in 253u8..=255 {
+            let country = Country::try_from(i).unwrap();
+            assert_eq!(country, Country::Unknown);
+        }
+    }
+
+    #[test]
+    fn test_try_from_iso3166_2_invalid_length() {
+        assert!(Country::try_from_iso3166_2("").is_err());
+        assert!(Country::try_from_iso3166_2("U").is_err());
+        assert!(Country::try_from_iso3166_2("USA").is_err());
+        assert!(Country::try_from_iso3166_2("ABCD").is_err());
+    }
+
+    #[test]
+    fn test_binary_serde_roundtrip() {
+        let countries = [
+            Country::Unknown,
+            Country::UnitedStates,
+            Country::Japan,
+            Country::SaintMartin,
+        ];
+
+        for country in countries {
+            let serialized = country.serialize();
+            let deserialized = Country::deserialize(&serialized).unwrap();
+            assert_eq!(deserialized, country);
+        }
+    }
+
+    #[test]
+    fn test_byte_sized_is_one() {
+        assert_eq!(Country::Unknown.byte_size(), 1);
+        assert_eq!(Country::UnitedStates.byte_size(), 1);
+        assert_eq!(Country::SaintMartin.byte_size(), 1);
+    }
+
+    #[test]
+    fn test_spot_checks() {
+        assert_eq!(Country::UnitedStates.code(), "US");
+        assert_eq!(Country::Unknown.serialize(), [0]);
+        assert_eq!(Country::default(), Country::Unknown);
+    }
+
+    #[test]
+    fn test_country_deserialize_eof() {
+        let data: [u8; 0] = [];
+        assert!(Country::deserialize(&data).is_err());
+    }
+}
